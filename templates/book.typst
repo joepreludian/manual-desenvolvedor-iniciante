@@ -1,0 +1,143 @@
+// Template pandoc → Typst para o "Manual do desenvolvedor".
+// Variáveis vêm de metadata.yaml (title, subtitle, author, version, date...).
+
+#set terms(hanging-indent: 1.5em)
+#set table(inset: 6pt, stroke: none)
+
+#let horizontalRule = line(start: (25%,0%), end: (75%,0%))
+#let divider = if "divider" in std { divider } else { horizontalRule }
+
+#show figure.where(kind: table): set figure.caption(position: top)
+#show figure.where(kind: image): set figure.caption(position: bottom)
+
+$if(highlighting-definitions)$
+// syntax highlighting functions from skylighting:
+$highlighting-definitions$
+$endif$
+
+// ---------------------------------------------------------------- cores
+#let accent = rgb("#1a5fb4")
+#let ink    = rgb("#1f2933")
+#let muted  = rgb("#6b7280")
+#let codebg = rgb("#f4f6f8")
+
+// ---------------------------------------------------------------- documento
+#set document(
+  title: "$title$$if(subtitle)$ — $subtitle$$endif$",
+  author: ($for(author)$"$author$"$sep$, $endfor$),
+)
+
+#set page(
+  paper: "$if(papersize)$$papersize$$else$a4$endif$",
+  margin: (x: 2.2cm, y: 2.4cm),
+  numbering: none,
+)
+
+#set text(
+  lang: "pt", region: "BR",
+  size: $if(fontsize)$$fontsize$$else$11pt$endif$,
+  fill: ink,
+  $if(mainfont)$font: ("$mainfont$", "Helvetica", "Arial"),$endif$
+)
+#set par(justify: true, leading: 0.7em, spacing: 1.1em)
+
+$if(codefont)$
+#show raw: set text(font: ("$codefont$", "Menlo", "DejaVu Sans Mono"), size: 0.9em)
+$endif$
+
+// bloco de código com fundo e borda suave
+#show raw.where(block: true): it => block(
+  width: 100%,
+  fill: codebg,
+  inset: 10pt,
+  radius: 4pt,
+  stroke: 0.5pt + rgb("#d9dee3"),
+  it,
+)
+#show raw.where(block: false): it => box(
+  fill: codebg, inset: (x: 3pt, y: 0pt), outset: (y: 3pt), radius: 2pt, it,
+)
+
+#set heading(numbering: "$if(section-numbering)$$section-numbering$$else$1.1$endif$")
+#show heading.where(level: 1): it => {
+  pagebreak(weak: true)
+  v(1em)
+  text(size: 2em, weight: "bold", fill: accent, it)
+  v(0.6em)
+}
+#show heading.where(level: 2): it => { v(0.8em); text(size: 1.35em, weight: "bold", it); v(0.3em) }
+#show heading.where(level: 3): it => { v(0.5em); text(size: 1.1em, weight: "bold", fill: accent, it); v(0.2em) }
+
+#show link: set text(fill: accent)
+
+// citações / avisos
+#show quote.where(block: true): it => block(
+  width: 100%,
+  fill: rgb("#f8fafc"),
+  inset: (left: 12pt, right: 10pt, y: 8pt),
+  stroke: (left: 3pt + accent),
+  it.body,
+)
+
+// tabelas com linha de cabeçalho destacada
+#show table.cell.where(y: 0): set text(weight: "bold")
+#show table.cell: set align(left)
+#set table(
+  stroke: (x, y) => if y == 0 { (bottom: 1pt + ink) } else { (bottom: 0.4pt + rgb("#d9dee3")) },
+  inset: 7pt,
+)
+
+// ---------------------------------------------------------------- CAPA
+#page(margin: (x: 2.5cm, y: 3cm), numbering: none)[
+  #set par(justify: false)
+  #place(top + left, rect(width: 100%, height: 6pt, fill: accent))
+  #v(4cm)
+  #text(size: 34pt, weight: "bold", fill: ink)[$title$]
+  #v(0.4cm)
+  $if(subtitle)$
+  #text(size: 22pt, fill: accent)[$subtitle$]
+  #v(0.4cm)
+  $endif$
+  #line(length: 30%, stroke: 2pt + accent)
+  #v(1.2cm)
+  #text(size: 14pt, fill: muted, hyphenate: false)[Um toolbox para quem está começando: motivação, exemplos executáveis e referências.]
+  #v(1fr)
+  #text(size: 14pt)[por $for(author)$$author$$sep$ e $endfor$]
+  #v(0.3cm)
+  $if(version)$
+  #text(size: 12pt, fill: muted)[Versão $version$$if(date)$ · $date$$endif$]
+  $endif$
+  #v(1.2cm)
+  #place(bottom + left, rect(width: 100%, height: 6pt, fill: accent))
+]
+
+// ---------------------------------------------------------------- SUMÁRIO
+#set page(
+  numbering: "1",
+  header: context {
+    if counter(page).get().first() > 1 [
+      #text(size: 9pt, fill: muted)[$title$ — $if(subtitle)$$subtitle$$endif$]
+      #h(1fr)
+      #text(size: 9pt, fill: muted)[$if(version)$$version$$endif$]
+    ]
+  },
+)
+#counter(page).update(1)
+
+$for(include-before)$
+$include-before$
+$endfor$
+
+$if(toc)$
+#outline(
+  title: [$if(toc-title)$$toc-title$$else$Sumário$endif$],
+  depth: $toc-depth$,
+  indent: 1.2em,
+)
+$endif$
+
+$body$
+
+$for(include-after)$
+$include-after$
+$endfor$

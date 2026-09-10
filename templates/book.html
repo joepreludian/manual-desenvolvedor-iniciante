@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="$if(lang)$$lang$$else$pt-BR$endif$">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>$title$$if(subtitle)$ — $subtitle$$endif$</title>
+$for(author-meta)$
+  <meta name="author" content="$author-meta$">
+$endfor$
+$if(highlighting-css)$
+  <style>
+$highlighting-css$
+  </style>
+$endif$
+$for(header-includes)$
+  $header-includes$
+$endfor$
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.36.2/ace.js" crossorigin="anonymous"></script>
+</head>
+<body>
+$for(include-before)$
+$include-before$
+$endfor$
+
+<section class="cover">
+  <div class="cover-bar"></div>
+  <h1 class="cover-title">$title$</h1>
+$if(subtitle)$
+  <p class="cover-subtitle">$subtitle$</p>
+$endif$
+  <p class="cover-tagline">Um toolbox para quem está começando: motivação, exemplos executáveis e referências.</p>
+  <p class="cover-authors">por $for(author)$$author$$sep$ e $endfor$</p>
+$if(version)$
+  <p class="cover-version">Versão $version$$if(date)$ · $date$$endif$</p>
+$endif$
+  <p class="cover-hint">Dica: todos os blocos de código desta página são editáveis. Mexa neles à vontade e use <em>Restaurar</em> para voltar ao original.</p>
+</section>
+
+<div class="layout">
+$if(toc)$
+  <nav id="TOC" role="doc-toc" class="toc">
+    <p class="toc-title">$if(toc-title)$$toc-title$$else$Sumário$endif$</p>
+$table-of-contents$
+  </nav>
+$endif$
+  <main class="content">
+$body$
+  </main>
+</div>
+
+$for(include-after)$
+$include-after$
+$endfor$
+</body>
+</html>

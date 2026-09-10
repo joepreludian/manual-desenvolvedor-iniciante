@@ -1,0 +1,20 @@
+---
+title: "Manual do desenvolvedor"
+subtitle: "Python · Django"
+author:
+  - "Claude"
+  - "Jon Trigueiro"
+version: "v1.0.0"
+date: "Setembro de 2026"
+lang: pt-BR
+toc: true
+toc-depth: 2
+toc-title: "Sumário"
+papersize: a4
+fontsize: 11pt
+mainfont: "Helvetica Neue"
+codefont: "Menlo"
+linkcolor: "#1a5fb4"
+section-numbering: "1.1"
+highlighting: true
+---

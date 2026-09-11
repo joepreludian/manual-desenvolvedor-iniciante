@@ -30,10 +30,10 @@ texto normal.
 
 ## CI
 
-O workflow em `.github/workflows/build.yml` gera PDF, EPUB e MOBI a cada push
-na `main` e em pull requests, e publica os três arquivos como artefato. Ao
-criar uma tag `vX.Y.Z` (a mesma versão de `metadata.yaml`), os arquivos são
-anexados a uma release do GitHub:
+O workflow em `.github/workflows/build.yml` roda só quando uma tag `vX.Y.Z`
+(a mesma versão de `metadata.yaml`) é enviada, ou por disparo manual na aba
+Actions. Ele gera PDF, EPUB e MOBI, publica os três como artefato e os anexa
+a uma release do GitHub:
 
 ```bash
 git tag v1.0.0 && git push origin main --tags

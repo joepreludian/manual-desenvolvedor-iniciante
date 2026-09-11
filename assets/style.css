@@ -33,6 +33,9 @@ code, pre, .ace-block { font-family: Menlo, "JetBrains Mono", "Fira Code", monos
 .cover-title { font-size: 3rem; margin: 0 0 .5rem; line-height: 1.1; }
 .cover-subtitle { font-size: 1.8rem; color: var(--accent); margin: 0 0 2rem; }
 .cover-tagline { font-size: 1.15rem; color: var(--muted); max-width: 32rem; }
+.cover-stack-label { font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 2rem 0 .5rem; }
+.cover-stack { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: .5rem; }
+.cover-stack li { border: 1px solid var(--accent); color: var(--accent); background: #fff7f0; border-radius: 4px; padding: .3rem .7rem; font-weight: 600; }
 .cover-authors { font-size: 1.2rem; margin-top: 3rem; }
 .cover-version { color: var(--muted); }
 .cover-hint { font-size: .95rem; color: var(--muted); border-left: 3px solid var(--accent); padding-left: 1rem; margin-top: 3rem; }

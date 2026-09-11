@@ -1,4 +1,4 @@
-# Manual do desenvolvedor — Python · Django
+# Manual do desenvolvedor iniciante
 
 Um "toolbox" em formato de livro para quem está começando em Python e Django.
 Escrito em português do Brasil, com foco em **motivação**, **exemplos
@@ -27,7 +27,7 @@ texto normal.
 ## Estrutura
 
 ```
-metadata.yaml        título, autores, versão, idioma, opções de layout
+metadata.yaml        título, autores, versão, stack coberta (capa), opções de layout
 src/                 capítulos em Markdown, na ordem do prefixo numérico
   01-introducao.md   introdução (escrita pelo Jon)
   02-terminal.md     capítulo 1: Usando o Terminal
@@ -50,5 +50,5 @@ build/               saída gerada (ignorada pelo git)
    - `## Tabela de referência rápida` (quando fizer sentido)
    - `## Exercícios`
    - `## Referências` (de onde a informação foi tirada)
-3. Atualize `version` em `metadata.yaml`.
+3. Acrescente a tecnologia à lista `stack` e suba `version` em `metadata.yaml`.
 4. `make all`.

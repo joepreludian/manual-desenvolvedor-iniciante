@@ -29,6 +29,14 @@ $if(subtitle)$
   <p class="cover-subtitle">$subtitle$</p>
 $endif$
   <p class="cover-tagline">Um toolbox para quem está começando: motivação, exemplos executáveis e referências.</p>
+$if(stack)$
+  <p class="cover-stack-label">O que este livro já cobre</p>
+  <ul class="cover-stack">
+$for(stack)$
+    <li>$stack$</li>
+$endfor$
+  </ul>
+$endif$
   <p class="cover-authors">por $for(author)$$author$$sep$ e $endfor$</p>
 $if(version)$
   <p class="cover-version">Versão $version$$if(date)$ · $date$$endif$</p>

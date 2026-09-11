@@ -1,6 +1,9 @@
 ---
-title: "Manual do desenvolvedor"
-subtitle: "Python · Django"
+title: "Manual do desenvolvedor iniciante"
+# Tecnologias já cobertas pelo livro. Acrescente aqui a cada novo capítulo
+# e suba a versão.
+stack:
+  - "Terminal"
 author:
   - "Jon Trigueiro"
   - "Claude LLM"

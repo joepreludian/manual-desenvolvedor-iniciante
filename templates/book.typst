@@ -102,6 +102,16 @@ $endif$
   #line(length: 30%, stroke: 2pt + accent)
   #v(1.2cm)
   #text(size: 14pt, fill: muted, hyphenate: false)[Um toolbox para quem está começando: motivação, exemplos executáveis e referências.]
+  $if(stack)$
+  #v(1.2cm)
+  #text(size: 10pt, fill: muted, tracking: 0.08em)[O QUE ESTE LIVRO JÁ COBRE]
+  #v(0.3cm)
+  #stack(dir: ltr, spacing: 8pt,
+  $for(stack)$
+    box(fill: accent.lighten(85%), stroke: 1pt + accent, radius: 4pt, inset: (x: 10pt, y: 6pt), text(size: 12pt, fill: accent, weight: "semibold")[$stack$]),
+  $endfor$
+  )
+  $endif$
   #v(1fr)
   #text(size: 14pt)[por $for(author)$$author$$sep$ e $endfor$]
   #v(0.3cm)
@@ -117,7 +127,7 @@ $endif$
   numbering: "1",
   header: context {
     if counter(page).get().first() > 1 [
-      #text(size: 9pt, fill: muted)[$title$ — $if(subtitle)$$subtitle$$endif$]
+      #text(size: 9pt, fill: muted)[$title$$if(subtitle)$ — $subtitle$$endif$]
       #h(1fr)
       #text(size: 9pt, fill: muted)[$if(version)$$version$$endif$]
     ]

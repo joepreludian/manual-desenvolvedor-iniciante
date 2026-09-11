@@ -6,6 +6,7 @@
 -- Atributos opcionais no bloco: {.mermaid width="60%" caption="..."}
 local outdir = os.getenv("MERMAID_OUT") or "build/mermaid"
 local mmdc   = os.getenv("MMDC") or "npx -y @mermaid-js/mermaid-cli@11"
+local pconf  = "filters/puppeteer.json"  -- desliga o sandbox do Chromium (necessário em CI)
 
 local function file_exists(path)
   local f = io.open(path, "rb")
@@ -26,7 +27,7 @@ function CodeBlock(el)
 
   if not file_exists(png) then
     local w = io.open(src, "w"); w:write(el.text); w:close()
-    local ok = os.execute(mmdc .. " -i " .. src .. " -o " .. png .. " -s 2 -b white -q")
+    local ok = os.execute(mmdc .. " -p " .. pconf .. " -i " .. src .. " -o " .. png .. " -s 2 -b white -q")
     if not ok then
       io.stderr:write("mermaid: falha ao renderizar " .. src .. "; mantendo o bloco como código\n")
       return nil

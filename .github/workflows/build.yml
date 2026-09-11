@@ -40,12 +40,28 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Install chromium libraries for mermaid-cli
-        run: npx -y puppeteer browsers install chrome --install-deps
+      - name: Install chromium system libraries for mermaid-cli
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            ca-certificates libasound2t64 libatk-bridge2.0-0 libatk1.0-0 libcairo2 \
+            libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgbm1 libglib2.0-0 \
+            libgtk-3-0 libnspr4 libnss3 libpango-1.0-0 libpangocairo-1.0-0 \
+            libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 \
+            libxext6 libxfixes3 libxi6 libxkbcommon0 libxrandr2 libxrender1 \
+            libxss1 libxtst6
+
+      - name: Cache puppeteer chromium
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/puppeteer
+          key: puppeteer-${{ runner.os }}-mermaid-cli-11
+
+      - name: Download chromium for mermaid-cli
+        run: npx -y @mermaid-js/mermaid-cli@11 --version
 
       - name: Install calibre and fonts
         run: |
-          sudo apt-get update
           sudo apt-get install -y --no-install-recommends calibre fonts-dejavu-core fonts-liberation
           ebook-convert --version | head -1
 

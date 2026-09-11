@@ -37,7 +37,7 @@ $endif$
   lang: "pt", region: "BR",
   size: $if(fontsize)$$fontsize$$else$11pt$endif$,
   fill: ink,
-  $if(mainfont)$font: ("$mainfont$", "Helvetica", "Arial"),$endif$
+  $if(mainfont)$font: ("$mainfont$", "Helvetica", "Arial", "Liberation Sans", "DejaVu Sans"),$endif$
 )
 #set par(justify: true, leading: 0.7em, spacing: 1.1em)
 

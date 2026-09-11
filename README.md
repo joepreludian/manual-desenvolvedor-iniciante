@@ -8,6 +8,7 @@ executáveis** e **referências** ao fim de cada capítulo.
 
 ```bash
 brew install pandoc typst
+brew install --cask calibre   # só para gerar o MOBI
 ```
 
 ## Como construir
@@ -15,7 +16,10 @@ brew install pandoc typst
 ```bash
 make pdf     # gera build/manual.pdf
 make html    # gera build/manual.html (blocos de código viram editores Ace)
-make all     # os dois
+make epub    # gera build/manual.epub (capa = primeira página do PDF)
+make mobi    # gera build/manual.mobi (precisa do Calibre)
+make all     # pdf + html
+make ebooks  # epub + mobi
 make serve   # serve o HTML em http://localhost:8000/manual.html
 make clean   # apaga build/
 ```
@@ -23,6 +27,17 @@ make clean   # apaga build/
 O HTML carrega o [Ace Editor](https://ace.c9.io/) de um CDN, então precisa de
 internet na primeira abertura. Sem rede, os blocos de código aparecem como
 texto normal.
+
+## CI
+
+O workflow em `.github/workflows/build.yml` gera PDF, EPUB e MOBI a cada push
+na `main` e em pull requests, e publica os três arquivos como artefato. Ao
+criar uma tag `vX.Y.Z` (a mesma versão de `metadata.yaml`), os arquivos são
+anexados a uma release do GitHub:
+
+```bash
+git tag v1.0.0 && git push origin main --tags
+```
 
 ## Estrutura
 
@@ -36,6 +51,7 @@ templates/
   book.html          template pandoc → HTML (capa, sumário lateral)
 assets/
   style.css          estilo do HTML
+  epub.css           estilo do EPUB/MOBI
   ace-blocks.js      transforma blocos de código em editores Ace
 build/               saída gerada (ignorada pelo git)
 ```

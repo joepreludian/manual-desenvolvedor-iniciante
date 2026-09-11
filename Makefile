@@ -3,29 +3,45 @@
 # Alvos:
 #   make pdf    -> build/manual.pdf   (pandoc + typst)
 #   make html   -> build/manual.html  (pandoc + Ace Editor)
-#   make all    -> os dois
+#   make epub   -> build/manual.epub  (pandoc, capa gerada pelo typst)
+#   make mobi   -> build/manual.mobi  (calibre ebook-convert a partir do epub)
+#   make all    -> pdf + html
+#   make ebooks -> epub + mobi
 #   make serve  -> abre um servidor local para ler o HTML
 #   make clean  -> apaga build/
 
 SHELL    := /bin/bash
 PANDOC   ?= pandoc
 TYPST    ?= typst
+# No macOS o Calibre instala o ebook-convert dentro do .app
+EBOOK_CONVERT ?= $(shell command -v ebook-convert 2>/dev/null || echo /Applications/calibre.app/Contents/MacOS/ebook-convert)
 BUILD    := build
 SRC      := $(sort $(wildcard src/*.md))
 META     := metadata.yaml
 OUT_PDF  := $(BUILD)/manual.pdf
 OUT_HTML := $(BUILD)/manual.html
+OUT_EPUB := $(BUILD)/manual.epub
+OUT_MOBI := $(BUILD)/manual.mobi
+COVER    := $(BUILD)/cover.png
 
 COMMON_FLAGS := --from markdown+smart --metadata-file=$(META) --toc \
                 --syntax-highlighting=tango --resource-path=.:src
 
-.PHONY: all pdf html serve clean check-tools
+.PHONY: all ebooks pdf html epub mobi cover serve clean check-tools
 
 all: pdf html
+
+ebooks: epub mobi
 
 pdf: check-tools $(OUT_PDF)
 
 html: $(OUT_HTML)
+
+epub: check-tools $(OUT_EPUB)
+
+mobi: $(OUT_MOBI)
+
+cover: check-tools $(COVER)
 
 $(BUILD):
 	mkdir -p $(BUILD)
@@ -47,6 +63,30 @@ $(OUT_HTML): $(SRC) $(META) templates/book.html assets/style.css assets/ace-bloc
 	  --include-after-body=<(printf '<script>\n'; cat assets/ace-blocks.js; printf '\n</script>\n') \
 	  -o $@ $(SRC)
 	@echo "HTML gerado em $@"
+
+# A capa do EPUB é a primeira página do PDF, renderizada em PNG pelo typst.
+$(COVER): $(SRC) $(META) templates/book.typst | $(BUILD)
+	$(PANDOC) $(COMMON_FLAGS) \
+	  --to typst --syntax-highlighting=none \
+	  --template=templates/book.typst \
+	  -V page-numbering="1" \
+	  -o $(BUILD)/manual.typ $(SRC)
+	$(TYPST) compile --format png --ppi 150 --pages 1 $(BUILD)/manual.typ $@
+	@echo "Capa gerada em $@"
+
+$(OUT_EPUB): $(SRC) $(META) $(COVER) assets/epub.css | $(BUILD)
+	$(PANDOC) $(COMMON_FLAGS) \
+	  --to epub3 \
+	  --css=assets/epub.css \
+	  --epub-cover-image=$(COVER) \
+	  --epub-title-page=false \
+	  -o $@ $(SRC)
+	@echo "EPUB gerado em $@"
+
+$(OUT_MOBI): $(OUT_EPUB)
+	@command -v "$(EBOOK_CONVERT)" >/dev/null || { echo "ebook-convert (Calibre) não encontrado: brew install --cask calibre"; exit 1; }
+	"$(EBOOK_CONVERT)" $< $@ --output-profile kindle
+	@echo "MOBI gerado em $@"
 
 serve: html
 	@echo "Abra http://localhost:8000/manual.html"

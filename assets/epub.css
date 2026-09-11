@@ -1,0 +1,12 @@
+/* Estilo do EPUB (e do MOBI, que é convertido a partir dele). */
+body { font-family: Georgia, "Times New Roman", serif; line-height: 1.5; }
+h1 { color: #e8590c; font-family: Helvetica, Arial, sans-serif; page-break-before: always; }
+h2, h3 { font-family: Helvetica, Arial, sans-serif; }
+h3 { color: #e8590c; }
+a { color: #e8590c; }
+code, pre { font-family: Menlo, "DejaVu Sans Mono", monospace; font-size: 0.9em; }
+pre { background: #f4f6f8; border: 1px solid #d9dee3; padding: 0.6em; white-space: pre-wrap; word-wrap: break-word; }
+blockquote { border-left: 3px solid #e8590c; margin: 1em 0; padding: 0.3em 1em; background: #fff7f0; }
+table { border-collapse: collapse; width: 100%; font-size: 0.9em; }
+th, td { border-bottom: 1px solid #d9dee3; padding: 0.3em 0.5em; text-align: left; vertical-align: top; }
+th { border-bottom: 2px solid #1f2933; }

@@ -16,7 +16,7 @@ $highlighting-definitions$
 $endif$
 
 // ---------------------------------------------------------------- cores
-#let accent = rgb("#1a5fb4")
+#let accent = rgb("#e8590c")
 #let ink    = rgb("#1f2933")
 #let muted  = rgb("#6b7280")
 #let codebg = rgb("#f4f6f8")
@@ -68,12 +68,13 @@ $endif$
 #show heading.where(level: 2): it => { v(0.8em); text(size: 1.35em, weight: "bold", it); v(0.3em) }
 #show heading.where(level: 3): it => { v(0.5em); text(size: 1.1em, weight: "bold", fill: accent, it); v(0.2em) }
 
+#show heading: set text(hyphenate: false)
 #show link: set text(fill: accent)
 
 // citações / avisos
 #show quote.where(block: true): it => block(
   width: 100%,
-  fill: rgb("#f8fafc"),
+  fill: rgb("#fff7f0"),
   inset: (left: 12pt, right: 10pt, y: 8pt),
   stroke: (left: 3pt + accent),
   it.body,

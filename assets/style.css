@@ -1,5 +1,5 @@
 :root {
-  --accent: #1a5fb4;
+  --accent: #e8590c;
   --ink: #1f2933;
   --muted: #6b7280;
   --codebg: #f4f6f8;
@@ -56,7 +56,7 @@ h1 { font-size: 2.2rem; color: var(--accent); margin-top: 3rem; border-bottom: 2
 h2 { font-size: 1.5rem; margin-top: 2.5rem; }
 h3 { font-size: 1.15rem; color: var(--accent); margin-top: 1.8rem; }
 a { color: var(--accent); }
-blockquote { border-left: 4px solid var(--accent); margin: 1.2rem 0; padding: .4rem 1rem; background: #f8fafc; color: #374151; }
+blockquote { border-left: 4px solid var(--accent); margin: 1.2rem 0; padding: .4rem 1rem; background: #fff7f0; color: #374151; }
 table { border-collapse: collapse; width: 100%; margin: 1.2rem 0; font-size: .95rem; display: block; overflow-x: auto; }
 th, td { text-align: left; padding: .5rem .7rem; border-bottom: 1px solid var(--line); vertical-align: top; }
 th { border-bottom: 2px solid var(--ink); }

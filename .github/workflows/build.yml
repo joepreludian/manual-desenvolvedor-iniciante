@@ -35,6 +35,14 @@ jobs:
           sudo install -m 0755 typst-x86_64-unknown-linux-musl/typst /usr/local/bin/typst
           typst --version
 
+      - name: Install node (mermaid-cli)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install chromium libraries for mermaid-cli
+        run: npx -y puppeteer browsers install chrome --install-deps
+
       - name: Install calibre and fonts
         run: |
           sudo apt-get update

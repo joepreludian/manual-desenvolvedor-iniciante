@@ -25,7 +25,8 @@ OUT_MOBI := $(BUILD)/manual.mobi
 COVER    := $(BUILD)/cover.png
 
 COMMON_FLAGS := --from markdown+smart --metadata-file=$(META) --toc \
-                --syntax-highlighting=tango --resource-path=.:src
+                --syntax-highlighting=assets/vscode-dark.theme --resource-path=.:src \
+                --lua-filter=filters/mermaid.lua
 
 .PHONY: all ebooks pdf html epub mobi cover serve clean check-tools
 
@@ -46,16 +47,17 @@ cover: check-tools $(COVER)
 $(BUILD):
 	mkdir -p $(BUILD)
 
-$(OUT_PDF): $(SRC) $(META) templates/book.typst | $(BUILD)
+$(OUT_PDF): $(SRC) $(META) templates/book.typst filters/mermaid.lua filters/typst-code.lua assets/vscode-dark.tmTheme | $(BUILD)
 	$(PANDOC) $(COMMON_FLAGS) \
 	  --to pdf --pdf-engine=$(TYPST) \
 	  --syntax-highlighting=none \
+	  --lua-filter=filters/typst-code.lua \
 	  --template=templates/book.typst \
 	  -V page-numbering="1" \
 	  -o $@ $(SRC)
 	@echo "PDF gerado em $@"
 
-$(OUT_HTML): $(SRC) $(META) templates/book.html assets/style.css assets/ace-blocks.js | $(BUILD)
+$(OUT_HTML): $(SRC) $(META) templates/book.html assets/style.css assets/ace-blocks.js filters/mermaid.lua assets/vscode-dark.theme | $(BUILD)
 	$(PANDOC) $(COMMON_FLAGS) \
 	  --to html5 --standalone --section-divs \
 	  --template=templates/book.html \
@@ -68,13 +70,14 @@ $(OUT_HTML): $(SRC) $(META) templates/book.html assets/style.css assets/ace-bloc
 $(COVER): $(SRC) $(META) templates/book.typst | $(BUILD)
 	$(PANDOC) $(COMMON_FLAGS) \
 	  --to typst --syntax-highlighting=none \
+	  --lua-filter=filters/typst-code.lua \
 	  --template=templates/book.typst \
 	  -V page-numbering="1" \
 	  -o $(BUILD)/manual.typ $(SRC)
-	$(TYPST) compile --format png --ppi 150 --pages 1 $(BUILD)/manual.typ $@
+	$(TYPST) compile --root . --format png --ppi 150 --pages 1 $(BUILD)/manual.typ $@
 	@echo "Capa gerada em $@"
 
-$(OUT_EPUB): $(SRC) $(META) $(COVER) assets/epub.css | $(BUILD)
+$(OUT_EPUB): $(SRC) $(META) $(COVER) assets/epub.css assets/vscode-dark.theme | $(BUILD)
 	$(PANDOC) $(COMMON_FLAGS) \
 	  --to epub3 \
 	  --css=assets/epub.css \

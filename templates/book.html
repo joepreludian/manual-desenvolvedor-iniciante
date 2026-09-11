@@ -16,6 +16,7 @@ $for(header-includes)$
   $header-includes$
 $endfor$
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.36.2/ace.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.15.0/mermaid.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
 $for(include-before)$
@@ -59,5 +60,8 @@ $body$
 $for(include-after)$
 $include-after$
 $endfor$
+<script>
+  if (window.mermaid) { mermaid.initialize({ startOnLoad: true, theme: "neutral" }); }
+</script>
 </body>
 </html>

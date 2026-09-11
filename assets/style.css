@@ -64,13 +64,17 @@ table { border-collapse: collapse; width: 100%; margin: 1.2rem 0; font-size: .95
 th, td { text-align: left; padding: .5rem .7rem; border-bottom: 1px solid var(--line); vertical-align: top; }
 th { border-bottom: 2px solid var(--ink); }
 code:not(pre code) { background: var(--codebg); padding: .1rem .35rem; border-radius: 3px; font-size: .9em; }
-pre { background: var(--codebg); border: 1px solid var(--line); border-radius: 6px; padding: .8rem 1rem; overflow-x: auto; font-size: .9rem; }
+pre { background: #1e1e1e; color: #d4d4d4; border-radius: 6px; padding: .8rem 1rem; overflow-x: auto; font-size: .9rem; }
+
+/* diagramas mermaid */
+pre.mermaid { background: transparent; border: 0; text-align: center; }
 
 /* editores Ace */
 .ace-block { margin: 1.2rem 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
-.ace-toolbar { display: flex; align-items: center; gap: .5rem; background: #e9eef3; padding: .3rem .6rem; font-size: .8rem; color: var(--muted); }
+.ace-toolbar { display: flex; align-items: center; gap: .5rem; background: #252526; border-bottom: 1px solid #3c3c3c; padding: .3rem .6rem; font-size: .8rem; color: #9da5b4; }
 .ace-toolbar .lang { font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
 .ace-toolbar .spacer { flex: 1; }
-.ace-toolbar button { font: inherit; font-size: .78rem; border: 1px solid var(--line); background: #fff; border-radius: 4px; padding: .15rem .55rem; cursor: pointer; color: var(--ink); }
+.ace-toolbar button { font: inherit; font-size: .78rem; border: 1px solid #3c3c3c; background: #333; border-radius: 4px; padding: .15rem .55rem; cursor: pointer; color: #d4d4d4; }
 .ace-toolbar button:hover { border-color: var(--accent); color: var(--accent); }
+.ace-block { border-color: #3c3c3c; }
 .ace-editor { font-size: 14px; line-height: 1.5; }

@@ -5,7 +5,7 @@ h2, h3 { font-family: Helvetica, Arial, sans-serif; }
 h3 { color: #e8590c; }
 a { color: #e8590c; }
 code, pre { font-family: Menlo, "DejaVu Sans Mono", monospace; font-size: 0.9em; }
-pre { background: #f4f6f8; border: 1px solid #d9dee3; padding: 0.6em; white-space: pre-wrap; word-wrap: break-word; }
+pre { background: #1e1e1e; color: #d4d4d4; border-radius: 4px; padding: 0.6em; white-space: pre-wrap; word-wrap: break-word; }
 blockquote { border-left: 3px solid #e8590c; margin: 1em 0; padding: 0.3em 1em; background: #fff7f0; }
 table { border-collapse: collapse; width: 100%; font-size: 0.9em; }
 th, td { border-bottom: 1px solid #d9dee3; padding: 0.3em 0.5em; text-align: left; vertical-align: top; }

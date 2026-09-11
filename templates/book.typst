@@ -19,7 +19,9 @@ $endif$
 #let accent = rgb("#e8590c")
 #let ink    = rgb("#1f2933")
 #let muted  = rgb("#6b7280")
-#let codebg = rgb("#f4f6f8")
+#let codebg = rgb("#1e1e1e")   // fundo escuro, estilo VS Code
+#let codefg = rgb("#d4d4d4")
+#let inlinebg = rgb("#f4f6f8")
 
 // ---------------------------------------------------------------- documento
 #set document(
@@ -44,6 +46,8 @@ $endif$
 $if(codefont)$
 #show raw: set text(font: ("$codefont$", "Menlo", "DejaVu Sans Mono"), size: 0.9em)
 $endif$
+// tema de cores (TextMate) para o realce de sintaxe do próprio Typst
+#set raw(theme: "/assets/vscode-dark.tmTheme")
 
 // bloco de código com fundo e borda suave
 #show raw.where(block: true): it => block(
@@ -51,11 +55,10 @@ $endif$
   fill: codebg,
   inset: 10pt,
   radius: 4pt,
-  stroke: 0.5pt + rgb("#d9dee3"),
-  it,
+  text(fill: codefg, it),
 )
 #show raw.where(block: false): it => box(
-  fill: codebg, inset: (x: 3pt, y: 0pt), outset: (y: 3pt), radius: 2pt, it,
+  fill: inlinebg, inset: (x: 3pt, y: 0pt), outset: (y: 3pt), radius: 2pt, it,
 )
 
 #set heading(numbering: "$if(section-numbering)$$section-numbering$$else$1.1$endif$")

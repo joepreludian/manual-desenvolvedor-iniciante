@@ -164,10 +164,10 @@ docker system df             # mostra quanto espaço o Docker está usando
 
 Digitar `docker run` com dez opções toda vez é chato e propenso a erro. O
 **Docker Compose** resolve isso: você descreve os serviços em um arquivo
-`compose.yaml` na raiz do projeto e sobe tudo com um comando. O arquivo vai
+`docker-compose.yml` na raiz do projeto e sobe tudo com um comando. O arquivo vai
 para o Git, e qualquer pessoa que clonar o projeto tem o mesmo ambiente.
 
-Este é o `compose.yaml` que vamos usar no capítulo de GeoDjango. Ele sobe
+Este é o `docker-compose.yml` que vamos usar no capítulo de GeoDjango. Ele sobe
 um PostgreSQL 17 com a extensão PostGIS:
 
 ```yaml
@@ -222,8 +222,10 @@ docker compose down -v         # idem e apaga os volumes: recomeça do zero
 docker compose pull            # baixa versões novas das imagens
 ```
 
-O Compose sempre procura o `compose.yaml` na pasta atual (ou em uma pasta
-acima). Por isso rode esses comandos de dentro da pasta do projeto. Ele
+O Compose sempre procura o `docker-compose.yml` na pasta atual (ou em uma
+pasta acima). Ele também aceita os nomes `compose.yaml` e `compose.yml`, que
+você vai ver em projetos mais novos. Por isso rode esses comandos de dentro
+da pasta do projeto. Ele
 também usa o nome da pasta como prefixo dos containers: em um projeto chamado
 `pontos`, o container do banco se chama `pontos-db-1`.
 
@@ -233,7 +235,7 @@ A convenção que este livro segue e que você vai encontrar em muitos times:
 
 ```
 pontos/
-|-- compose.yaml      serviços (banco, cache...) que rodam no Docker
+|-- docker-compose.yml serviços (banco, cache...) que rodam no Docker
 |-- pyproject.toml    o projeto Python, gerenciado pelo uv
 |-- manage.py         o Django, rodando direto na sua máquina
 `-- ...
@@ -260,7 +262,7 @@ projetos maiores. Fica para um capítulo futuro.
 | `docker exec -it <container> <cmd>`      | Rodar um comando dentro de um container em execução   |
 | `docker stop` / `start` / `rm`           | Parar, religar, remover um container                  |
 | `docker system prune`                    | Limpar containers parados e cache                     |
-| `docker compose up -d --wait`            | Subir os serviços do `compose.yaml` e esperar ficarem prontos |
+| `docker compose up -d --wait`            | Subir os serviços do `docker-compose.yml` e esperar ficarem prontos |
 | `docker compose ps`                      | Estado dos serviços do projeto                        |
 | `docker compose logs -f <serviço>`       | Logs de um serviço                                    |
 | `docker compose exec <serviço> <cmd>`    | Comando dentro de um serviço (ex.: `psql`)            |
@@ -300,7 +302,7 @@ projetos maiores. Fica para um capítulo futuro.
 
 ### Exercício 4: seu primeiro Compose
 
-1. Crie uma pasta `laboratorio-docker`, entre nela e crie um `compose.yaml`
+1. Crie uma pasta `laboratorio-docker`, entre nela e crie um `docker-compose.yml`
    com um único serviço `web` usando a imagem `nginx:alpine` e a porta
    `8088:80`.
 2. Suba com `docker compose up -d` e confira com `docker compose ps`.
@@ -309,7 +311,7 @@ projetos maiores. Fica para um capítulo futuro.
 
 ### Exercício 5: volumes e persistência
 
-1. No mesmo `compose.yaml`, adicione o serviço `db` do exemplo deste capítulo
+1. No mesmo `docker-compose.yml`, adicione o serviço `db` do exemplo deste capítulo
    (o PostGIS), incluindo o volume `pgdata`.
 2. Suba com `docker compose up -d --wait`.
 3. Entre no banco: `docker compose exec db psql -U pontos -d pontos` e rode

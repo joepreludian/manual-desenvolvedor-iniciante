@@ -35,7 +35,7 @@ No Mac, as três bibliotecas vêm pelo Homebrew:
 brew install gdal geos proj
 ```
 
-E o PostGIS vem no Docker, com o `compose.yaml` do capítulo anterior. Crie
+E o PostGIS vem no Docker, com o `docker-compose.yml` do capítulo anterior. Crie
 o arquivo na raiz do projeto `pontos`:
 
 ```yaml

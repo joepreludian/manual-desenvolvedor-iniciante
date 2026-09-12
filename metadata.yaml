@@ -4,10 +4,13 @@ title: "Manual do desenvolvedor iniciante"
 # e suba a versão.
 stack:
   - "Terminal"
+  - "Docker"
+  - "Django"
+  - "GeoDjango"
 author:
   - "Jon Trigueiro"
   - "Claude LLM"
-version: "v1.0.0"
+version: "v1.1.0"
 date: "Setembro de 2026"
 lang: pt-BR
 toc: true

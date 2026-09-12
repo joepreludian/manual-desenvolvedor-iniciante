@@ -86,6 +86,7 @@ $endif$
 // tabelas com linha de cabeçalho destacada
 #show table.cell.where(y: 0): set text(weight: "bold")
 #show table.cell: set align(left)
+#show table.cell: set par(justify: false)
 #set table(
   stroke: (x, y) => if y == 0 { (bottom: 1pt + ink) } else { (bottom: 0.4pt + rgb("#d9dee3")) },
   inset: 7pt,

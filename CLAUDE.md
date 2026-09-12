@@ -25,6 +25,8 @@ make pdf | html | epub | mobi | all | ebooks | serve | clean
 - `src/01-introducao.md` é do Jon; não reescrever.
 - Diagramas: blocos ```mermaid (filtro em `filters/mermaid.lua`).
 - Sem caracteres de desenho de caixa (├──) em blocos de código: use ASCII.
+- Arquivo do Compose chama-se `docker-compose.yml` (nunca `compose.yaml`).
+- Serviços rodam no Docker Compose; o código Python roda local com `uv run`.
 
 ## Ao adicionar um capítulo
 

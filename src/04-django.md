@@ -499,6 +499,308 @@ Os comandos que você vai usar todo dia:
 Todos com `uv run python manage.py` na frente. Se cansar de digitar, crie um
 alias no seu `~/.zshrc`: `alias dj="uv run python manage.py"`.
 
+## Comandos próprios: automatizando tarefas do projeto
+
+Cedo ou tarde aparece uma tarefa que não é uma página do site: importar uma
+planilha que o cliente mandou, apagar registros antigos, recalcular um campo,
+enviar um relatório toda segunda-feira. O primeiro impulso é escrever um
+`importa.py` solto na raiz do projeto e rodar com `python importa.py`. Faça o
+teste:
+
+```python
+# importa.py
+from lugares.models import Lugar
+
+print(Lugar.objects.count())
+```
+
+```bash
+uv run python importa.py
+# django.core.exceptions.ImproperlyConfigured: Requested setting INSTALLED_APPS,
+# but settings are not configured. ...
+```
+
+O script quebra antes da primeira linha útil. O motivo: o ORM só funciona
+depois que o Django carrega o `settings.py` e registra os apps. É o
+`manage.py` quem faz isso. Dá para imitar (definir a variável de ambiente
+`DJANGO_SETTINGS_MODULE` e chamar `django.setup()` no topo do script), mas
+você estaria reinventando, pior, algo que o Django já oferece: os
+**comandos de gerenciamento** (*management commands*).
+
+Um comando próprio é um arquivo Python dentro do app que o `manage.py`
+descobre sozinho. Em troca de seguir uma pequena convenção, você ganha:
+
+- **O projeto já carregado.** Settings, apps, banco: tudo pronto quando o
+  seu código começa.
+- **Argumentos de linha de comando de graça.** Você declara as opções e o
+  Django gera o `--help`, valida os tipos e converte os valores, usando o
+  `argparse` da biblioteca padrão.
+- **As opções que todo comando tem.** `--verbosity`, `--settings`,
+  `--traceback`, `--no-color` funcionam sem você escrever nada.
+- **Um lugar previsível.** Quem entra no projeto roda `manage.py help` e vê a
+  lista de tarefas disponíveis. Um `importa.py` perdido na raiz ninguém
+  encontra.
+- **Testável.** `call_command("nome")` roda o comando de dentro de um teste
+  automatizado.
+- **Pronto para o cron e para produção.** Servidores e agendadores rodam
+  `manage.py comando` do mesmo jeito que você roda na sua máquina.
+
+### A convenção
+
+O Django procura comandos em `app/management/commands/nome_do_comando.py`.
+Cada arquivo define uma classe chamada `Command`, herdando de `BaseCommand`,
+com o método `handle`. As duas pastas precisam do `__init__.py`:
+
+```bash
+mkdir -p lugares/management/commands
+touch lugares/management/__init__.py lugares/management/commands/__init__.py
+```
+
+### Exemplo: importar lugares de um CSV
+
+Suponha um arquivo `lugares.csv` assim (a última linha, sem nome, está aí de
+propósito):
+
+```
+nome,categoria,endereco,aberto
+Café da Esquina,Café,"Rua A, 10",sim
+Parque da Cidade,Parque,,sim
+Café Fechado,Café,"Av. B, 200",não
+,Café,,sim
+```
+
+Crie `lugares/management/commands/importar_lugares.py`:
+
+```python
+import csv
+from pathlib import Path
+
+from django.core.management.base import BaseCommand, CommandError
+from django.db import transaction
+
+from lugares.models import Categoria, Lugar
+
+
+class Command(BaseCommand):
+    help = "Importa lugares de um CSV (colunas: nome, categoria, endereco, aberto)."
+
+    def add_arguments(self, parser):
+        parser.add_argument("arquivo", type=Path, help="caminho do arquivo CSV")
+        parser.add_argument(
+            "--separador", default=",", help="separador de colunas (padrão: vírgula)"
+        )
+        parser.add_argument(
+            "--atualizar",
+            action="store_true",
+            help="atualiza lugares que já existem (pelo nome) em vez de pulá-los",
+        )
+        parser.add_argument(
+            "--simular",
+            action="store_true",
+            help="mostra o que faria, mas não grava nada no banco",
+        )
+
+    def handle(self, *args, **options):
+        arquivo: Path = options["arquivo"]
+        if not arquivo.exists():
+            raise CommandError(f"Arquivo não encontrado: {arquivo}")
+
+        criados = atualizados = pulados = 0
+
+        with arquivo.open(newline="", encoding="utf-8") as f, transaction.atomic():
+            leitor = csv.DictReader(f, delimiter=options["separador"])
+            obrigatorias = {"nome", "categoria"}
+            if not obrigatorias.issubset(leitor.fieldnames or []):
+                raise CommandError(
+                    f"O CSV precisa das colunas {sorted(obrigatorias)}; "
+                    f"encontrei {leitor.fieldnames}"
+                )
+
+            for numero, linha in enumerate(leitor, start=2):  # linha 1 é o cabeçalho
+                nome = linha["nome"].strip()
+                if not nome:
+                    aviso = f"linha {numero}: sem nome, pulando"
+                    self.stdout.write(self.style.WARNING(aviso))
+                    pulados += 1
+                    continue
+
+                categoria, _ = Categoria.objects.get_or_create(
+                    nome=linha["categoria"].strip()
+                )
+                aberto = (linha.get("aberto") or "sim").strip().lower()
+                dados = {
+                    "categoria": categoria,
+                    "endereco": (linha.get("endereco") or "").strip(),
+                    "aberto": aberto in ("sim", "s", "1", "true"),
+                }
+
+                if options["atualizar"]:
+                    _, criado = Lugar.objects.update_or_create(
+                        nome=nome, defaults=dados
+                    )
+                    if criado:
+                        criados += 1
+                    else:
+                        atualizados += 1
+                else:
+                    _, criado = Lugar.objects.get_or_create(
+                        nome=nome, defaults=dados
+                    )
+                    if criado:
+                        criados += 1
+                    else:
+                        pulados += 1
+
+                if options["verbosity"] >= 2:
+                    self.stdout.write(f"linha {numero}: {nome} ({categoria})")
+
+            if options["simular"]:
+                transaction.set_rollback(True)
+
+        resumo = f"{criados} criados, {atualizados} atualizados, {pulados} pulados"
+        if options["simular"]:
+            self.stdout.write(
+                self.style.NOTICE(f"[simulação] {resumo}; nada foi gravado")
+            )
+        else:
+            self.stdout.write(self.style.SUCCESS(resumo))
+```
+
+Vamos pelas partes que importam:
+
+- **`help`** é o texto que aparece em `manage.py help` e no `--help` do
+  comando. Escreva sempre.
+- **`add_arguments(parser)`** recebe um parser do `argparse`. Argumentos
+  sem traço (`arquivo`) são **posicionais** e obrigatórios. Os com `--` são
+  **opções**: `--separador` recebe um valor, e `action="store_true"` faz
+  `--atualizar` e `--simular` virarem simples ligado/desligado. O
+  `type=Path` converte o texto em um objeto `Path` antes de chegar em você.
+- **`handle(*args, **options)`** é o corpo. Tudo o que foi declarado chega no
+  dicionário `options`, junto com as opções padrão, como `verbosity`.
+- **`CommandError`** é o jeito certo de abortar: o Django imprime a mensagem
+  em vermelho, sem *traceback*, e termina com código de saída 1 (o que
+  scripts e o cron entendem como falha). Com `--traceback` você vê a pilha
+  completa.
+- **`self.stdout.write`** em vez de `print`: permite capturar a saída nos
+  testes e respeita `--no-color`. `self.style.SUCCESS`, `WARNING` e
+  `NOTICE` colorem o texto.
+- **`transaction.atomic()`** envolve a importação inteira em uma transação:
+  se algo der errado no meio, nada fica pela metade. E `set_rollback(True)`
+  no fim é o truque do `--simular`: faz tudo, conta tudo, e desfaz.
+- **`get_or_create` e `update_or_create`** evitam duplicar registros ao
+  rodar o comando duas vezes. Um comando de importação deve ser seguro de
+  repetir; esse é o significado de *idempotente*.
+
+### Rodando e explorando os argumentos
+
+O `--help` é gerado a partir do que você declarou, mais as opções que todo
+comando tem:
+
+```bash
+uv run python manage.py importar_lugares --help
+```
+
+```
+usage: manage.py importar_lugares [-h] [--separador SEPARADOR] [--atualizar]
+                                  [--simular] [--version] [-v {0,1,2,3}]
+                                  [--settings SETTINGS] [--pythonpath PYTHONPATH]
+                                  [--traceback] [--no-color] [--force-color]
+                                  [--skip-checks]
+                                  arquivo
+
+Importa lugares de um CSV (colunas: nome, categoria, endereco, aberto).
+
+positional arguments:
+  arquivo               caminho do arquivo CSV
+
+options:
+  --separador SEPARADOR separador de colunas (padrão: vírgula)
+  --atualizar           atualiza lugares que já existem (pelo nome) em vez de pulá-los
+  --simular             mostra o que faria, mas não grava nada no banco
+  -v, --verbosity {0,1,2,3}
+                        Verbosity level; 0=minimal output, 1=normal output, ...
+  --settings SETTINGS   The Python path to a settings module ...
+  --traceback           Display a full stack trace on CommandError exceptions.
+  --no-color            Don't colorize the command output.
+```
+
+Primeiro em modo de simulação, para ver o que aconteceria:
+
+```bash
+uv run python manage.py importar_lugares lugares.csv --simular
+# linha 5: sem nome, pulando
+# [simulação] 3 criados, 0 atualizados, 1 pulados; nada foi gravado
+```
+
+Agora de verdade, e depois de novo, para ver que repetir é seguro:
+
+```bash
+uv run python manage.py importar_lugares lugares.csv
+# 3 criados, 0 atualizados, 1 pulados
+
+uv run python manage.py importar_lugares lugares.csv
+# 0 criados, 0 atualizados, 4 pulados
+```
+
+Mude um endereço no CSV e rode com `--atualizar`, pedindo mais detalhes com
+`-v 2`:
+
+```bash
+uv run python manage.py importar_lugares lugares.csv --atualizar -v 2
+# linha 2: Café da Esquina (Café)
+# linha 3: Parque da Cidade (Parque)
+# linha 4: Café Fechado (Café)
+# linha 5: sem nome, pulando
+# 0 criados, 3 atualizados, 1 pulados
+```
+
+Um arquivo separado por ponto e vírgula, como o Excel em português costuma
+exportar, e um erro de arquivo inexistente:
+
+```bash
+uv run python manage.py importar_lugares planilha.csv --separador ";"
+uv run python manage.py importar_lugares nao-existe.csv
+# CommandError: Arquivo não encontrado: nao-existe.csv
+echo $?
+# 1
+```
+
+E o comando aparece na lista do projeto, sob o nome do app:
+
+```bash
+uv run python manage.py help
+# ...
+# [lugares]
+#     importar_lugares
+```
+
+### Testando o comando
+
+Como é só uma classe Python, dá para rodá-lo de dentro de um teste com
+`call_command`, capturando a saída:
+
+```python
+from io import StringIO
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
+from django.core.management import call_command
+from django.test import TestCase
+
+from .models import Lugar
+
+
+class ImportarLugaresTests(TestCase):
+    def test_importa_csv(self):
+        with TemporaryDirectory() as pasta:
+            csv = Path(pasta) / "lugares.csv"
+            csv.write_text("nome,categoria,endereco,aberto\nCafé X,Café,Rua 1,sim\n")
+            saida = StringIO()
+            call_command("importar_lugares", str(csv), stdout=saida)
+        self.assertEqual(Lugar.objects.count(), 1)
+        self.assertIn("1 criados", saida.getvalue())
+```
+
 ## Tabela de referência rápida
 
 | Conceito             | Onde mora                  | Para que serve                                     |
@@ -514,6 +816,7 @@ alias no seu `~/.zshrc`: `alias dj="uv run python manage.py"`.
 | Template             | `templates/<app>/`         | HTML com `{{ }}`, `{% %}`, herança e filtros       |
 | `settings.py`        | `config/settings.py`       | Apps instalados, banco, idioma, fuso, etc.         |
 | `manage.py`          | raiz do projeto            | Linha de comando do projeto                        |
+| Comando próprio      | `management/commands/`     | Tarefas do projeto com argumentos e `--help`       |
 
 ## Exercícios
 
@@ -566,7 +869,18 @@ No `shell`, descubra como fazer cada uma destas consultas e anote o resultado:
    `response.status_code == 200` e que o nome do lugar aparece no HTML.
 3. Rode `uv run python manage.py test`.
 
-### Exercício 6: quebrando de propósito
+### Exercício 6: um comando de exportação
+
+1. Crie o comando `exportar_lugares` que escreve um CSV com todos os lugares
+   (use `csv.DictWriter` e `self.stdout` como destino, para o resultado ir
+   para a tela ou para um arquivo com `>`).
+2. Adicione a opção `--categoria NOME` para exportar só uma categoria, e
+   `--apenas-abertos` (`store_true`).
+3. Rode `--help` e confira que as suas opções aparecem com as descrições.
+4. Exporte, apague todos os lugares no shell e importe de volta com
+   `importar_lugares`. O ciclo fechou?
+
+### Exercício 7: quebrando de propósito
 
 1. Remova `'lugares'` de `INSTALLED_APPS` e rode `check`. Leia o erro.
 2. Volte, e agora troque `on_delete=models.PROTECT` por `models.CASCADE`.
@@ -600,6 +914,16 @@ No `shell`, descubra como fazer cada uma destas consultas e anote o resultado:
   <https://docs.djangoproject.com/en/stable/ref/templates/builtins/>.
 - **`manage.py` e `django-admin`**:
   <https://docs.djangoproject.com/en/stable/ref/django-admin/>.
+- **Comandos próprios (`BaseCommand`, `add_arguments`, `CommandError`,
+  `call_command`)**:
+  <https://docs.djangoproject.com/en/stable/howto/custom-management-commands/>
+  e <https://docs.djangoproject.com/en/stable/ref/django-admin/#running-management-commands-from-your-code>.
+- **`argparse`** (a biblioteca por trás dos argumentos):
+  <https://docs.python.org/3/library/argparse.html>.
+- **Transações (`atomic`, `set_rollback`)**:
+  <https://docs.djangoproject.com/en/stable/topics/db/transactions/>.
+- **`get_or_create` e `update_or_create`**:
+  <https://docs.djangoproject.com/en/stable/ref/models/querysets/#get-or-create>.
 - **Shell com importação automática** (desde o 5.2):
   <https://docs.djangoproject.com/en/stable/ref/django-admin/#shell>.
 - **uv**: guia de projetos, <https://docs.astral.sh/uv/guides/projects/>; e

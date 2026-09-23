@@ -39,6 +39,13 @@ a uma release do GitHub:
 git tag v1.0.0 && git push origin main --tags
 ```
 
+## Homepage
+
+A pasta `site/` é a página de
+[manual-desenvolvedor-iniciante.jon.dev.br](https://manual-desenvolvedor-iniciante.jon.dev.br),
+publicada no GitHub Pages pelo workflow `.github/workflows/pages.yml` sempre
+que `site/` muda na `main`. Os links de download apontam para a última release.
+
 ## Estrutura
 
 ```

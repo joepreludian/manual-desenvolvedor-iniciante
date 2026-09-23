@@ -32,7 +32,15 @@ make pdf | html | epub | mobi | all | ebooks | serve | clean
 
 1. Criar `src/NN-nome.md`.
 2. Em `metadata.yaml`: acrescentar a tecnologia em `stack` e subir `version`.
+   Acrescentar a mesma tecnologia na lista de `site/index.html`.
 3. `make all` e conferir o PDF.
+
+## Homepage
+
+- `site/` (Tailwind via CDN, mesmas cores da capa) é publicada no GitHub Pages
+  por `.github/workflows/pages.yml` a cada push na main que mexa em `site/`.
+- Domínio: manual-desenvolvedor-iniciante.jon.dev.br (`site/CNAME`).
+- Downloads apontam para `releases/latest/download/manual.{pdf,epub,mobi}`.
 
 ## Git
 

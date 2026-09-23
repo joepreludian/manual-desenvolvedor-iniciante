@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Manual do desenvolvedor iniciante</title>
+  <meta name="description" content="Um toolbox para quem está começando em Python e Django: motivação, exemplos executáveis e referências. Download grátis em PDF, EPUB e MOBI.">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    /* mesmas cores do livro (templates/book.typst) */
+    @theme {
+      --color-accent: #e8590c;
+      --color-ink: #1f2933;
+      --color-muted: #6b7280;
+      --color-line: #d9dee3;
+      --color-note: #fff7f0;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-white font-sans text-ink antialiased">
+  <div class="h-1.5 bg-accent"></div>
+
+  <main class="mx-auto flex min-h-[calc(100vh-0.75rem)] max-w-3xl flex-col px-6 py-16 sm:py-24">
+    <h1 class="text-4xl font-bold leading-tight sm:text-5xl">Manual do desenvolvedor iniciante</h1>
+    <div class="mt-5 h-0.5 w-1/3 bg-accent"></div>
+    <p class="mt-8 text-lg text-muted sm:text-xl">
+      Um toolbox para quem está começando: motivação, exemplos executáveis e referências.
+    </p>
+
+    <section class="mt-10">
+      <p class="text-xs font-semibold tracking-widest text-muted">O QUE ESTE LIVRO JÁ COBRE</p>
+      <ul class="mt-3 flex flex-wrap gap-2">
+        <li class="rounded border border-accent bg-accent/10 px-3 py-1.5 font-semibold text-accent">Terminal</li>
+        <li class="rounded border border-accent bg-accent/10 px-3 py-1.5 font-semibold text-accent">Docker</li>
+        <li class="rounded border border-accent bg-accent/10 px-3 py-1.5 font-semibold text-accent">Django</li>
+        <li class="rounded border border-accent bg-accent/10 px-3 py-1.5 font-semibold text-accent">GeoDjango</li>
+      </ul>
+    </section>
+
+    <section class="mt-12">
+      <h2 class="text-2xl font-bold">Baixe o livro</h2>
+      <p class="mt-2 text-muted">
+        Grátis, sempre na versão mais recente<span id="version"></span>. Escolha o formato do seu leitor:
+      </p>
+      <div class="mt-5 grid gap-3 sm:grid-cols-3">
+        <a href="https://github.com/joepreludian/manual-desenvolvedor-iniciante/releases/latest/download/manual.pdf"
+           class="group rounded-md border border-line p-4 transition hover:border-accent">
+          <span class="block text-lg font-bold group-hover:text-accent">PDF</span>
+          <span class="text-sm text-muted">Para ler no computador ou imprimir</span>
+        </a>
+        <a href="https://github.com/joepreludian/manual-desenvolvedor-iniciante/releases/latest/download/manual.epub"
+           class="group rounded-md border border-line p-4 transition hover:border-accent">
+          <span class="block text-lg font-bold group-hover:text-accent">EPUB</span>
+          <span class="text-sm text-muted">Para Kobo, Apple Books e afins</span>
+        </a>
+        <a href="https://github.com/joepreludian/manual-desenvolvedor-iniciante/releases/latest/download/manual.mobi"
+           class="group rounded-md border border-line p-4 transition hover:border-accent">
+          <span class="block text-lg font-bold group-hover:text-accent">MOBI</span>
+          <span class="text-sm text-muted">Para Kindle</span>
+        </a>
+      </div>
+      <p class="mt-3 text-sm text-muted">
+        Versões anteriores ficam na página de
+        <a class="text-accent underline-offset-2 hover:underline" href="https://github.com/joepreludian/manual-desenvolvedor-iniciante/releases">releases</a>.
+      </p>
+    </section>
+
+    <section class="mt-12 border-l-[3px] border-accent bg-note px-5 py-4">
+      <h2 class="font-bold">Um livro em construção</h2>
+      <p class="mt-2">
+        Este manual cresce um capítulo por vez, conforme novos assuntos entram na
+        mentoria. Ainda falta muita coisa, e o que já está aqui pode mudar. Volte de
+        vez em quando: os links acima sempre apontam para a versão mais nova.
+      </p>
+    </section>
+
+    <footer class="mt-auto pt-16 text-sm text-muted">
+      <p class="text-base text-ink">por Jon Trigueiro e Claude LLM</p>
+      <p class="mt-1">
+        Código-fonte no
+        <a class="text-accent underline-offset-2 hover:underline" href="https://github.com/joepreludian/manual-desenvolvedor-iniciante">GitHub</a>.
+      </p>
+    </footer>
+  </main>
+
+  <div class="h-1.5 bg-accent"></div>
+
+  <script>
+    // Mostra a versão da última release; se a API falhar, a página segue sem ela.
+    fetch("https://api.github.com/repos/joepreludian/manual-desenvolvedor-iniciante/releases/latest")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((release) => {
+        if (release && release.tag_name) {
+          document.getElementById("version").textContent = " (" + release.tag_name + ")";
+        }
+      })
+      .catch(() => {});
+  </script>
+</body>
+</html>

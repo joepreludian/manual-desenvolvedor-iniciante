@@ -7,10 +7,12 @@ stack:
   - "Docker"
   - "Django"
   - "GeoDjango"
+  - "GeoJSON"
+  - "Leaflet"
 author:
   - "Jon Trigueiro"
   - "Claude LLM"
-version: "v1.1.0"
+version: "v1.2.0"
 date: "Setembro de 2026"
 lang: pt-BR
 toc: true

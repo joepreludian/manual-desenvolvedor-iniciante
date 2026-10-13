@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="769" height="662" viewBox="0 0 769 662" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><pattern id="hachura" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" stroke="#e8590c" stroke-width="2.5"/></pattern></defs>
+<rect width="769" height="662" fill="white"/>
+<rect x="70" y="24" width="448.9" height="583.8" fill="#f8f9fa" stroke="#868e96"/>
+<line x1="70.0" y1="24" x2="70.0" y2="607.8" stroke="#dee2e6" stroke-width="1"/>
+<text x="70.0" y="623.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.0" fill="#868e96" text-anchor="middle" font-weight="normal" >-46.70</text>
+<line x1="159.8" y1="24" x2="159.8" y2="607.8" stroke="#dee2e6" stroke-width="1"/>
+<text x="159.8" y="623.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.0" fill="#868e96" text-anchor="middle" font-weight="normal" >-46.68</text>
+<line x1="249.6" y1="24" x2="249.6" y2="607.8" stroke="#dee2e6" stroke-width="1"/>
+<text x="249.6" y="623.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.0" fill="#868e96" text-anchor="middle" font-weight="normal" >-46.66</text>
+<line x1="339.4" y1="24" x2="339.4" y2="607.8" stroke="#dee2e6" stroke-width="1"/>
+<text x="339.4" y="623.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.0" fill="#868e96" text-anchor="middle" font-weight="normal" >-46.64</text>
+<line x1="429.1" y1="24" x2="429.1" y2="607.8" stroke="#dee2e6" stroke-width="1"/>
+<text x="429.1" y="623.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.0" fill="#868e96" text-anchor="middle" font-weight="normal" >-46.62</text>
+<line x1="518.9" y1="24" x2="518.9" y2="607.8" stroke="#dee2e6" stroke-width="1"/>
+<text x="518.9" y="623.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.0" fill="#868e96" text-anchor="middle" font-weight="normal" >-46.60</text>
+<line x1="70" y1="24.0" x2="518.9" y2="24.0" stroke="#dee2e6" stroke-width="1"/>
+<text x="64.0" y="27.5" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.0" fill="#868e96" text-anchor="end" font-weight="normal" >-23.52</text>
+<line x1="70" y1="121.3" x2="518.9" y2="121.3" stroke="#dee2e6" stroke-width="1"/>
+<text x="64.0" y="124.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.0" fill="#868e96" text-anchor="end" font-weight="normal" >-23.54</text>
+<line x1="70" y1="218.6" x2="518.9" y2="218.6" stroke="#dee2e6" stroke-width="1"/>
+<text x="64.0" y="222.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.0" fill="#868e96" text-anchor="end" font-weight="normal" >-23.55</text>
+<line x1="70" y1="315.9" x2="518.9" y2="315.9" stroke="#dee2e6" stroke-width="1"/>
+<text x="64.0" y="319.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.0" fill="#868e96" text-anchor="end" font-weight="normal" >-23.57</text>
+<line x1="70" y1="413.2" x2="518.9" y2="413.2" stroke="#dee2e6" stroke-width="1"/>
+<text x="64.0" y="416.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.0" fill="#868e96" text-anchor="end" font-weight="normal" >-23.59</text>
+<line x1="70" y1="510.5" x2="518.9" y2="510.5" stroke="#dee2e6" stroke-width="1"/>
+<text x="64.0" y="514.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.0" fill="#868e96" text-anchor="end" font-weight="normal" >-23.61</text>
+<line x1="70" y1="607.8" x2="518.9" y2="607.8" stroke="#dee2e6" stroke-width="1"/>
+<text x="64.0" y="611.3" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.0" fill="#868e96" text-anchor="end" font-weight="normal" >-23.63</text>
+<text x="294.5" y="645.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.0" fill="#868e96" text-anchor="middle" font-weight="normal" >longitude (graus, SRID 4326)</text>
+<text x="14.0" y="315.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.0" fill="#868e96" text-anchor="middle" font-weight="normal" transform="rotate(-90 14 315.9)">latitude</text>
+<rect x="227.1" y="97.0" width="202.0" height="194.6" fill="#1c7ed6" fill-opacity="0.15" stroke="#1c7ed6" stroke-width="2"/>
+<rect x="204.7" y="218.6" width="134.7" height="218.9" fill="#e8590c" fill-opacity="0.15" stroke="#e8590c" stroke-width="2"/>
+<rect x="204.7" y="437.5" width="134.7" height="97.3" fill="#2f9e44" fill-opacity="0.15" stroke="#2f9e44" stroke-width="2"/>
+<rect x="227.1" y="218.6" width="112.2" height="73.0" fill="url(#hachura)" fill-opacity="1" stroke="none"/>
+<text x="233.1" y="112.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15.6" fill="#1c7ed6" text-anchor="start" font-weight="bold" >Centro</text>
+<text x="210.7" y="452.5" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15.6" fill="#2f9e44" text-anchor="start" font-weight="bold" >Moema</text>
+<text x="210.7" y="429.5" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15.6" fill="#e8590c" text-anchor="start" font-weight="bold" >Paraíso</text>
+<rect x="230.1" y="260.6" width="118" height="30" rx="3" fill="white" fill-opacity="0.85"/>
+<text x="233.1" y="273.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.0" fill="#e8590c" text-anchor="start" font-weight="bold" >Centro ∩ Paraíso</text>
+<text x="233.1" y="285.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.0" fill="#e8590c" text-anchor="start" font-weight="normal" >(4,24 km²)</text>
+<circle cx="369.4" cy="196.7" r="22.0" fill="#1c7ed6" fill-opacity="0.08" stroke="#1c7ed6" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="395.4" y="186.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.0" fill="#1c7ed6" text-anchor="start" font-weight="normal" >raio de 500 m</text>
+<circle cx="227.1" cy="194.3" r="5" fill="white" stroke="#c92a2a" stroke-width="2"/>
+<text x="218.1" y="198.3" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.0" fill="#c92a2a" text-anchor="end" font-weight="normal" >na_borda</text>
+<circle cx="369.4" cy="196.7" r="5" fill="#1f2933" stroke="white" stroke-width="1.5"/>
+<text x="378.4" y="200.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14.3" fill="#1f2933" text-anchor="start" font-weight="bold" >Café da Esquina</text>
+<circle cx="268.4" cy="249.7" r="5" fill="#1f2933" stroke="white" stroke-width="1.5"/>
+<text x="277.4" y="243.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14.3" fill="#1f2933" text-anchor="start" font-weight="bold" >MASP</text>
+<circle cx="260.8" cy="376.2" r="5" fill="#1f2933" stroke="white" stroke-width="1.5"/>
+<text x="269.8" y="380.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14.3" fill="#1f2933" text-anchor="start" font-weight="bold" >Parque Ibirapuera</text>
+<line x1="82" y1="593.8307200000048" x2="126" y2="593.8307200000048" stroke="#1f2933" stroke-width="3"/>
+<text x="104.0" y="587.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.0" fill="#1f2933" text-anchor="middle" font-weight="normal" >1 km</text>
+<rect x="534.9273153300769" y="32" width="18" height="12" fill="#1c7ed6" fill-opacity="0.15" stroke="#1c7ed6" stroke-width="2"/>
+<text x="560.9" y="43.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.0" fill="#1f2933" text-anchor="start" font-weight="normal" >Bairro (PolygonField)</text>
+<rect x="534.9273153300769" y="54" width="18" height="12" fill="url(#hachura)"/>
+<text x="560.9" y="65.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.0" fill="#1f2933" text-anchor="start" font-weight="normal" >Sobreposição de bairros</text>
+<circle cx="543.9273153300769" cy="82" r="5" fill="#1f2933"/>
+<text x="560.9" y="87.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.0" fill="#1f2933" text-anchor="start" font-weight="normal" >Lugar (PointField)</text>
+<circle cx="543.9273153300769" cy="104" r="5" fill="white" stroke="#c92a2a" stroke-width="2"/>
+<text x="560.9" y="109.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.0" fill="#1f2933" text-anchor="start" font-weight="normal" >Ponto exatamente na borda</text>
+<circle cx="543.9273153300769" cy="126" r="6" fill="none" stroke="#1c7ed6" stroke-width="1.5" stroke-dasharray="3 2"/>
+<text x="560.9" y="131.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.0" fill="#1f2933" text-anchor="start" font-weight="normal" >buffer(500) em metros</text>
+<text x="534.9" y="162.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.0" fill="#868e96" text-anchor="start" font-weight="bold" >Fora do mapa:</text>
+<text x="534.9" y="176.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.0" fill="#868e96" text-anchor="start" font-weight="normal" >Café do Rio (359 km)</text>
+<text x="534.9" y="190.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.0" fill="#868e96" text-anchor="start" font-weight="normal" >Parque da Cidade (870 km)</text>
+</svg>

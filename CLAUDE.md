@@ -24,6 +24,9 @@ make pdf | html | epub | mobi | all | ebooks | serve | clean
   `## Exercícios` (5–6) → `## Referências` (URLs de onde veio a informação).
 - `src/01-introducao.md` é do Jon; não reescrever.
 - Diagramas: blocos ```mermaid (filtro em `filters/mermaid.lua`).
+- Figuras estáticas: SVG em `assets/figuras/`, gerados por
+  `assets/figuras/gerar.py`, incluídos com `![legenda](assets/figuras/x.svg){width=..}`
+  (filtro em `filters/figures.lua`: caminho para o Typst, SVG inline no HTML).
 - Sem caracteres de desenho de caixa (├──) em blocos de código: use ASCII.
 - Arquivo do Compose chama-se `docker-compose.yml` (nunca `compose.yaml`).
 - Serviços rodam no Docker Compose; o código Python roda local com `uv run`.

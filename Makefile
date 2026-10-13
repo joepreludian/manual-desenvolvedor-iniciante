@@ -18,6 +18,7 @@ EBOOK_CONVERT ?= $(shell command -v ebook-convert 2>/dev/null || echo /Applicati
 BUILD    := build
 SRC      := $(sort $(wildcard src/*.md))
 META     := metadata.yaml
+OUT_TYP  := $(BUILD)/manual.typ
 OUT_PDF  := $(BUILD)/manual.pdf
 OUT_HTML := $(BUILD)/manual.html
 OUT_EPUB := $(BUILD)/manual.epub
@@ -26,7 +27,7 @@ COVER    := $(BUILD)/cover.png
 
 COMMON_FLAGS := --from markdown+smart --metadata-file=$(META) --toc \
                 --syntax-highlighting=assets/vscode-dark.theme --resource-path=.:src \
-                --lua-filter=filters/mermaid.lua
+                --lua-filter=filters/mermaid.lua --lua-filter=filters/figures.lua
 
 .PHONY: all ebooks pdf html epub mobi cover serve clean check-tools
 
@@ -47,17 +48,22 @@ cover: check-tools $(COVER)
 $(BUILD):
 	mkdir -p $(BUILD)
 
-$(OUT_PDF): $(SRC) $(META) templates/book.typst filters/mermaid.lua filters/typst-code.lua assets/vscode-dark.tmTheme | $(BUILD)
+# O Typst é chamado diretamente (e não via --pdf-engine do pandoc) porque o
+# pandoc, nesse modo, tenta buscar as imagens sozinho e descarta as que usam
+# caminho a partir da raiz do projeto (/build/mermaid/..., /assets/figuras/...).
+$(OUT_TYP): $(SRC) $(META) templates/book.typst filters/mermaid.lua filters/figures.lua filters/typst-code.lua $(wildcard assets/figuras/*.svg) | $(BUILD)
 	$(PANDOC) $(COMMON_FLAGS) \
-	  --to pdf --pdf-engine=$(TYPST) \
-	  --syntax-highlighting=none \
+	  --to typst --syntax-highlighting=none \
 	  --lua-filter=filters/typst-code.lua \
 	  --template=templates/book.typst \
 	  -V page-numbering="1" \
 	  -o $@ $(SRC)
+
+$(OUT_PDF): $(OUT_TYP) assets/vscode-dark.tmTheme | $(BUILD)
+	$(TYPST) compile --root . $< $@
 	@echo "PDF gerado em $@"
 
-$(OUT_HTML): $(SRC) $(META) templates/book.html assets/style.css assets/ace-blocks.js filters/mermaid.lua assets/vscode-dark.theme | $(BUILD)
+$(OUT_HTML): $(SRC) $(META) templates/book.html assets/style.css assets/ace-blocks.js filters/mermaid.lua filters/figures.lua assets/vscode-dark.theme $(wildcard assets/figuras/*.svg) | $(BUILD)
 	$(PANDOC) $(COMMON_FLAGS) \
 	  --to html5 --standalone --section-divs \
 	  --template=templates/book.html \
@@ -67,14 +73,8 @@ $(OUT_HTML): $(SRC) $(META) templates/book.html assets/style.css assets/ace-bloc
 	@echo "HTML gerado em $@"
 
 # A capa do EPUB é a primeira página do PDF, renderizada em PNG pelo typst.
-$(COVER): $(SRC) $(META) templates/book.typst | $(BUILD)
-	$(PANDOC) $(COMMON_FLAGS) \
-	  --to typst --syntax-highlighting=none \
-	  --lua-filter=filters/typst-code.lua \
-	  --template=templates/book.typst \
-	  -V page-numbering="1" \
-	  -o $(BUILD)/manual.typ $(SRC)
-	$(TYPST) compile --root . --format png --ppi 150 --pages 1 $(BUILD)/manual.typ $@
+$(COVER): $(OUT_TYP) | $(BUILD)
+	$(TYPST) compile --root . --format png --ppi 150 --pages 1 $< $@
 	@echo "Capa gerada em $@"
 
 $(OUT_EPUB): $(SRC) $(META) $(COVER) assets/epub.css assets/vscode-dark.theme | $(BUILD)

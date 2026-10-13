@@ -8,6 +8,8 @@
 #let divider = if "divider" in std { divider } else { horizontalRule }
 
 #show figure.where(kind: table): set figure.caption(position: top)
+// Tabelas longas (ex.: tabela de referência) podem quebrar entre páginas
+#show figure.where(kind: table): set block(breakable: true)
 #show figure.where(kind: image): set figure.caption(position: bottom)
 
 $if(highlighting-definitions)$
@@ -110,11 +112,12 @@ $endif$
   #v(1.2cm)
   #text(size: 10pt, fill: muted, tracking: 0.08em)[O QUE ESTE LIVRO JÁ COBRE]
   #v(0.3cm)
-  #stack(dir: ltr, spacing: 8pt,
-  $for(stack)$
-    box(fill: accent.lighten(85%), stroke: 1pt + accent, radius: 4pt, inset: (x: 10pt, y: 6pt), text(size: 12pt, fill: accent, weight: "semibold")[$stack$]),
-  $endfor$
-  )
+  // Caixas inline num parágrafo: quebram de linha sozinhas e ficam alinhadas
+  // à margem esquerda; o leading dá o espaço entre as linhas de caixas.
+  #block(width: 100%)[
+    #set par(leading: 9pt, justify: false)
+    $for(stack)$#box(fill: accent.lighten(85%), stroke: 1pt + accent, radius: 4pt, inset: (x: 10pt, y: 6pt), text(size: 12pt, fill: accent, weight: "semibold")[$stack$])$sep$ #h(4pt) $endfor$
+  ]
   $endif$
   #v(1fr)
   #text(size: 14pt)[por $for(author)$$author$$sep$ e $endfor$]

@@ -865,94 +865,110 @@ Testes que chamam APIs de verdade são lentos, quebram quando a rede cai,
 e, no caso do Nominatim, violam a política de uso toda vez que a suíte
 roda. O parâmetro `transport` resolve isso: um `httpx.MockTransport`
 recebe uma função que **faz o papel do servidor**, recebendo a requisição
-e devolvendo a resposta que você quiser. Acrescente a `lugares/tests.py`:
+e devolvendo a resposta que você quiser. Acrescente ao fim de
+`lugares/tests.py`:
 
 ```python
-from io import StringIO
 from unittest.mock import patch
 
 import httpx
-from django.contrib.gis.geos import Point
-from django.core.management import call_command
-from django.test import SimpleTestCase, TestCase
 
 from .geocodificacao import Coordenada, ErroDeGeocodificacao, Nominatim
-from .models import Categoria, Lugar
+from .models import Categoria
 
 
-class NominatimTests(SimpleTestCase):
-    def nominatim_falso(self, resposta):
-        """Um Nominatim cujo transporte devolve sempre `resposta`, sem rede."""
+@pytest.fixture
+def requisicoes():
+    """Lista onde o Nominatim falso anota cada requisição que recebeu."""
+    return []
 
+
+@pytest.fixture
+def nominatim_falso(requisicoes):
+    """Fábrica de Nominatim cujo transporte devolve sempre `resposta`, sem rede."""
+
+    def criar(resposta):
         def responder(requisicao):
-            self.ultima_requisicao = requisicao
+            requisicoes.append(requisicao)
             return resposta
 
         return Nominatim(user_agent="teste/1.0", transport=httpx.MockTransport(responder))
 
-    def test_encontra_coordenada(self):
-        resposta = httpx.Response(
-            200,
-            json=[{"lat": "-23.5616836", "lon": "-46.6565685", "display_name": "MASP, São Paulo"}],
-        )
-        with self.nominatim_falso(resposta) as geo:
-            coordenada = geo.buscar("Avenida Paulista, 1578, São Paulo")
-
-        self.assertEqual(coordenada, Coordenada(-23.5616836, -46.6565685, "MASP, São Paulo"))
-        self.assertEqual(self.ultima_requisicao.url.path, "/search")
-        self.assertEqual(
-            self.ultima_requisicao.url.params["q"], "Avenida Paulista, 1578, São Paulo"
-        )
-        self.assertEqual(self.ultima_requisicao.headers["User-Agent"], "teste/1.0")
-
-    def test_endereco_desconhecido(self):
-        with self.nominatim_falso(httpx.Response(200, json=[])) as geo:
-            self.assertIsNone(geo.buscar("Rua que não existe, 0"))
-
-    def test_erro_do_servidor(self):
-        with self.nominatim_falso(httpx.Response(503)) as geo:
-            with self.assertRaises(ErroDeGeocodificacao):
-                geo.buscar("Avenida Paulista, 1578, São Paulo")
+    return criar
 
 
-class GeocodificarTests(TestCase):
-    def test_atualiza_localizacao(self):
-        museu = Categoria.objects.create(nome="Museu")
-        masp = Lugar.objects.create(
-            nome="MASP",
-            categoria=museu,
-            endereco="Avenida Paulista, 1578, São Paulo",
-            localizacao=Point(-46.6333, -23.5505, srid=4326),
-        )
-        coordenada = Coordenada(-23.5616836, -46.6565685, "MASP, São Paulo")
-        saida = StringIO()
-        with patch.object(Nominatim, "buscar", return_value=coordenada):
-            call_command("geocodificar", stdout=saida)
+def test_nominatim_encontra_coordenada(nominatim_falso, requisicoes):
+    resposta = httpx.Response(
+        200,
+        json=[{"lat": "-23.5616836", "lon": "-46.6565685", "display_name": "MASP, São Paulo"}],
+    )
+    with nominatim_falso(resposta) as geo:
+        coordenada = geo.buscar("Avenida Paulista, 1578, São Paulo")
 
-        masp.refresh_from_db()
-        self.assertAlmostEqual(masp.localizacao.x, -46.6565685)
-        self.assertAlmostEqual(masp.localizacao.y, -23.5616836)
-        self.assertIn("1 atualizados", saida.getvalue())
+    assert coordenada == Coordenada(-23.5616836, -46.6565685, "MASP, São Paulo")
+    requisicao = requisicoes[-1]
+    assert requisicao.url.path == "/search"
+    assert requisicao.url.params["q"] == "Avenida Paulista, 1578, São Paulo"
+    assert requisicao.headers["User-Agent"] == "teste/1.0"
+
+
+def test_nominatim_endereco_desconhecido(nominatim_falso):
+    with nominatim_falso(httpx.Response(200, json=[])) as geo:
+        assert geo.buscar("Rua que não existe, 0") is None
+
+
+def test_nominatim_erro_do_servidor(nominatim_falso):
+    with nominatim_falso(httpx.Response(503)) as geo:
+        with pytest.raises(ErroDeGeocodificacao):
+            geo.buscar("Avenida Paulista, 1578, São Paulo")
+
+
+@pytest.mark.django_db
+def test_geocodificar_atualiza_localizacao():
+    museu = Categoria.objects.create(nome="Museu")
+    masp = Lugar.objects.create(
+        nome="MASP",
+        categoria=museu,
+        endereco="Avenida Paulista, 1578, São Paulo",
+        localizacao=Point(-46.6333, -23.5505, srid=4326),
+    )
+    coordenada = Coordenada(-23.5616836, -46.6565685, "MASP, São Paulo")
+    saida = StringIO()
+    with patch.object(Nominatim, "buscar", return_value=coordenada):
+        call_command("geocodificar", stdout=saida)
+
+    masp.refresh_from_db()
+    assert masp.localizacao.x == pytest.approx(-46.6565685)
+    assert masp.localizacao.y == pytest.approx(-23.5616836)
+    assert "1 atualizados" in saida.getvalue()
 ```
 
 Os três primeiros testes exercitam a classe nos três cenários (achou, não
 achou, deu erro) e ainda conferem que a requisição saiu certa: caminho,
-parâmetro `q`, `User-Agent`. São `SimpleTestCase` porque não tocam no
-banco. O quarto testa o comando, e aí a estratégia muda: em vez de um
-transporte falso, um `patch.object` substitui o método `buscar` inteiro
-por um que devolve a `Coordenada` pronta. O comando não precisa saber
-nada de HTTP, então o teste dele também não.
+parâmetro `q`, `User-Agent`. Duas fixtures preparam o cenário:
+`requisicoes` é só uma lista vazia, e `nominatim_falso` devolve uma função
+que monta um `Nominatim` cujo transporte anota cada requisição nessa lista
+e responde o que você mandou. Uma fixture pode pedir outra, e o pytest
+entrega a **mesma** lista para a fixture e para o teste que a pede; por
+isso o teste consegue ler `requisicoes[-1]`. Nenhum dos três leva
+`@pytest.mark.django_db`, porque não tocam no banco. O `pytest.raises`
+substitui o `try/except` que você escreveria para conferir que uma
+exceção foi levantada. O quarto testa o comando, e aí a estratégia muda:
+em vez de um transporte falso, um `patch.object` substitui o método
+`buscar` inteiro por um que devolve a `Coordenada` pronta. O comando não
+precisa saber nada de HTTP, então o teste dele também não. O
+`pytest.approx` compara os números com uma tolerância, porque a coordenada
+passa por `float` e pelo PostGIS no caminho.
 
 ```bash
-uv run python manage.py test lugares.tests.NominatimTests lugares.tests.GeocodificarTests
-# ....
-# ----------------------------------------------------------------------
-# Ran 4 tests in 0.033s
+uv run pytest -k "nominatim or geocodificar"
+# ...
+# lugares/tests.py ....                                                    [100%]
 #
-# OK
+# ======================= 4 passed, 4 deselected in 0.43s ========================
 ```
 
-Quatro testes em 33 milissegundos, sem um byte na rede.
+Quatro testes em menos de meio segundo, sem um byte na rede.
 
 ## Onde guardar credenciais
 
@@ -1299,4 +1315,7 @@ A chave existe em exatamente um lugar fora do código, o código tem um
   <https://docs.github.com/pt/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository>.
 - **`unittest.mock.patch.object`**:
   <https://docs.python.org/pt-br/3/library/unittest.mock.html#patch-object>.
+- **`pytest.raises` e `pytest.approx`**:
+  <https://docs.pytest.org/en/stable/how-to/assert.html#assertions-about-expected-exceptions>
+  e <https://docs.pytest.org/en/stable/reference/reference.html#pytest-approx>.
 - **`dataclasses`**: <https://docs.python.org/pt-br/3/library/dataclasses.html>.

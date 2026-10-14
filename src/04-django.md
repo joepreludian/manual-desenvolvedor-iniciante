@@ -777,29 +777,96 @@ uv run python manage.py help
 ### Testando o comando
 
 Como é só uma classe Python, dá para rodá-lo de dentro de um teste com
-`call_command`, capturando a saída:
+`call_command`, capturando a saída. Antes, uma escolha de ferramenta. O
+Django vem com um executor de testes próprio (`manage.py test`, herdeiro do
+`unittest` da biblioteca padrão), mas o mundo Python convergiu para o
+**pytest**: testes são funções simples, conferir um valor é um `assert`
+comum e, quando algo falha, ele mostra os dois lados da comparação sem
+você pedir. O plugin **pytest-django** faz a ponte com o Django: carrega o
+`settings.py`, cria um banco de dados só para os testes e o apaga no fim.
+Instale como dependência de **desenvolvimento**, porque o site em produção
+não roda testes:
+
+```bash
+uv add --dev pytest-django
+# Resolved 12 packages in 452ms
+# Installed 6 packages in 41ms
+#  + iniconfig==2.3.1
+#  + packaging==26.3
+#  + pluggy==1.6.0
+#  + pygments==2.21.0
+#  + pytest==9.1.1
+#  + pytest-django==4.14.0
+```
+
+O `uv` registra o plugin num grupo separado do `pyproject.toml`. Acrescente
+ali, logo abaixo, a configuração do pytest: onde está o `settings.py` e que
+o arquivo `tests.py` que o `startapp` criou em cada app conta como arquivo
+de testes (por padrão o pytest só procura `test_*.py`):
+
+```toml
+[dependency-groups]
+dev = [
+    "pytest-django>=4.14.0",
+]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+python_files = ["tests.py", "test_*.py"]
+```
+
+Agora o teste. Substitua o conteúdo de `lugares/tests.py` por este:
 
 ```python
 from io import StringIO
-from pathlib import Path
-from tempfile import TemporaryDirectory
 
+import pytest
 from django.core.management import call_command
-from django.test import TestCase
 
 from .models import Lugar
 
 
-class ImportarLugaresTests(TestCase):
-    def test_importa_csv(self):
-        with TemporaryDirectory() as pasta:
-            csv = Path(pasta) / "lugares.csv"
-            csv.write_text("nome,categoria,endereco,aberto\nCafé X,Café,Rua 1,sim\n")
-            saida = StringIO()
-            call_command("importar_lugares", str(csv), stdout=saida)
-        self.assertEqual(Lugar.objects.count(), 1)
-        self.assertIn("1 criados", saida.getvalue())
+@pytest.mark.django_db
+def test_importar_lugares_cria_a_partir_do_csv(tmp_path):
+    csv = tmp_path / "lugares.csv"
+    csv.write_text("nome,categoria,endereco,aberto\nCafé X,Café,Rua 1,sim\n")
+    saida = StringIO()
+
+    call_command("importar_lugares", str(csv), stdout=saida)
+
+    assert Lugar.objects.count() == 1
+    assert "1 criados" in saida.getvalue()
 ```
+
+Três coisas novas aqui. O pytest reconhece como teste qualquer função cujo
+nome começa com `test_`; dê nomes longos, que digam o que está sendo
+conferido, porque é esse nome que aparece quando o teste falha. O
+decorador `@pytest.mark.django_db` avisa que a função mexe no banco: sem
+ele, qualquer consulta é bloqueada, de propósito, para que testes que não
+precisam do banco não paguem por ele. E `tmp_path` é uma **fixture**: um
+parâmetro que o pytest preenche sozinho ao chamar a função, aqui com uma
+pasta temporária nova a cada teste, apagada depois. Fixtures são o jeito do
+pytest de preparar o cenário de um teste, e vamos criar as nossas nos
+próximos capítulos. Rode:
+
+```bash
+uv run pytest
+# ============================= test session starts ==============================
+# ...
+# django: version: 6.1.2, settings: config.settings (from ini)
+# configfile: pyproject.toml
+# plugins: django-4.14.0
+# collected 1 item
+#
+# lugares/tests.py .                                                       [100%]
+#
+# ============================== 1 passed in 0.13s ===============================
+```
+
+Cada ponto depois do nome do arquivo é um teste que passou. Uma falha
+aparece como `F`, e logo abaixo o pytest imprime a linha do `assert` que
+quebrou com os valores dos dois lados, o que costuma bastar para entender
+o problema sem abrir o depurador.
 
 ## Tabela de referência rápida
 
@@ -817,6 +884,7 @@ class ImportarLugaresTests(TestCase):
 | `settings.py`        | `config/settings.py`       | Apps instalados, banco, idioma, fuso, etc.         |
 | `manage.py`          | raiz do projeto            | Linha de comando do projeto                        |
 | Comando próprio      | `management/commands/`     | Tarefas do projeto com argumentos e `--help`       |
+| Teste                | `tests.py`                 | Funções `test_*` com `assert`; `uv run pytest`     |
 
 ## Exercícios
 
@@ -864,10 +932,14 @@ No `shell`, descubra como fazer cada uma destas consultas e anote o resultado:
 ### Exercício 5: o primeiro teste
 
 1. Em `lugares/tests.py`, escreva um teste que cria uma categoria e um lugar
-   e confere que `str(lugar)` devolve o nome.
-2. Escreva outro que usa `self.client.get("/lugares/")` e confere
-   `response.status_code == 200` e que o nome do lugar aparece no HTML.
-3. Rode `uv run python manage.py test`.
+   e confere que `str(lugar)` devolve o nome. Lembre do
+   `@pytest.mark.django_db`.
+2. Escreva outro que recebe a fixture `client` (o pytest-django a oferece
+   pronta: é o `Client` de testes do Django), faz `client.get("/lugares/")`
+   e confere `resposta.status_code == 200` e que o nome do lugar aparece em
+   `resposta.content`.
+3. Rode `uv run pytest -v` e veja os nomes dos três testes na tela. Faça um
+   deles falhar de propósito e leia o que o pytest imprime.
 
 ### Exercício 6: um comando de exportação
 
@@ -929,6 +1001,17 @@ No `shell`, descubra como fazer cada uma destas consultas e anote o resultado:
 - **uv**: guia de projetos, <https://docs.astral.sh/uv/guides/projects/>; e
   `uv init`, `uv add`, `uv run`,
   <https://docs.astral.sh/uv/reference/cli/>.
+- **Dependências de desenvolvimento no uv** (`uv add --dev`, grupo `dev`):
+  <https://docs.astral.sh/uv/concepts/projects/dependencies/#development-dependencies>.
+- **pytest**: como começar, <https://docs.pytest.org/en/stable/getting-started.html>;
+  fixtures, <https://docs.pytest.org/en/stable/how-to/fixtures.html>;
+  `tmp_path`, <https://docs.pytest.org/en/stable/how-to/tmp_path.html>;
+  configuração em `pyproject.toml`,
+  <https://docs.pytest.org/en/stable/reference/customize.html>.
+- **pytest-django** (`DJANGO_SETTINGS_MODULE`, `django_db`, fixtures
+  `client`, `db`, `django_user_model`):
+  <https://pytest-django.readthedocs.io/en/latest/> e
+  <https://pytest-django.readthedocs.io/en/latest/helpers.html>.
 - **História do Django**: Django Software Foundation, "Django's history",
   <https://www.djangoproject.com/foundation/>, e a entrevista com Adrian
   Holovaty e Simon Willison na Wikipédia,

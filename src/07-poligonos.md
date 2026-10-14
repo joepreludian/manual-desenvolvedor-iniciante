@@ -484,73 +484,102 @@ Um formulário merece um teste. Como não dá para clicar no mapa num
 teste, mandamos a geometria em texto, no formato **EWKT**: um WKT com o
 SRID na frente. O arquivo `lugares/tests.py` já tem o teste do comando de
 importação do capítulo de Django; acrescente ao **fim** dele os imports
-que faltam e a classe nova:
+que faltam, uma fixture nossa e três testes:
 
 ```python
-from django.contrib.auth import get_user_model
 from django.contrib.gis.geos import Point
 from django.urls import reverse
+from pytest_django.asserts import assertRedirects
 
 from .models import Bairro
 
 
-class NovoBairroTests(TestCase):
-    def setUp(self):
-        # A página exige login; o cliente de testes entra sem senha
-        usuaria = get_user_model().objects.create_user("ana")
-        self.client.force_login(usuaria)
+@pytest.fixture
+def usuaria_logada(db, client, django_user_model):
+    # A página exige login; o cliente de testes entra sem senha
+    usuaria = django_user_model.objects.create_user("ana")
+    client.force_login(usuaria)
+    return usuaria
 
-    def test_cria_bairro_por_post(self):
-        resposta = self.client.post(
-            reverse("lugares:novo_bairro"),
-            {
-                "nome": "Pinheiros",
-                # EWKT: o SRID na frente evita que o widget assuma 3857
-                "area": "SRID=4326;POLYGON((-46.70 -23.58, -46.67 -23.58, "
-                        "-46.67 -23.55, -46.70 -23.55, -46.70 -23.58))",
-            },
-        )
-        self.assertRedirects(resposta, reverse("lugares:mapa"))
-        bairro = Bairro.objects.get(nome="Pinheiros")
-        self.assertEqual(bairro.area.srid, 4326)
-        self.assertTrue(bairro.area.contains(Point(-46.68, -23.56, srid=4326)))
 
-    def test_rejeita_ponto(self):
-        resposta = self.client.post(
-            reverse("lugares:novo_bairro"),
-            {"nome": "Errado", "area": "SRID=4326;POINT(-46.6 -23.5)"},
-        )
-        self.assertEqual(resposta.status_code, 200)
-        self.assertIn("area", resposta.context["form"].errors)
-        self.assertFalse(Bairro.objects.filter(nome="Errado").exists())
+def test_cria_bairro_por_post(client, usuaria_logada):
+    resposta = client.post(
+        reverse("lugares:novo_bairro"),
+        {
+            "nome": "Pinheiros",
+            # EWKT: o SRID na frente evita que o widget assuma 3857
+            "area": "SRID=4326;POLYGON((-46.70 -23.58, -46.67 -23.58, "
+                    "-46.67 -23.55, -46.70 -23.55, -46.70 -23.58))",
+        },
+    )
+    assertRedirects(resposta, reverse("lugares:mapa"))
+    bairro = Bairro.objects.get(nome="Pinheiros")
+    assert bairro.area.srid == 4326
+    assert bairro.area.contains(Point(-46.68, -23.56, srid=4326))
 
-    def test_exige_login(self):
-        self.client.logout()
-        resposta = self.client.get(reverse("lugares:novo_bairro"))
-        self.assertEqual(resposta.status_code, 302)
-        self.assertIn("/admin/login/", resposta.url)
+
+def test_bairro_rejeita_ponto(client, usuaria_logada):
+    resposta = client.post(
+        reverse("lugares:novo_bairro"),
+        {"nome": "Errado", "area": "SRID=4326;POINT(-46.6 -23.5)"},
+    )
+    assert resposta.status_code == 200
+    assert "area" in resposta.context["form"].errors
+    assert not Bairro.objects.filter(nome="Errado").exists()
+
+
+def test_novo_bairro_exige_login(client):
+    resposta = client.get(reverse("lugares:novo_bairro"))
+    assert resposta.status_code == 302
+    assert "/admin/login/" in resposta.url
 ```
 
-(`TestCase` já estava importado no topo do arquivo.) O `setUp` roda antes
-de cada teste: cria uma usuária e a loga com `force_login`, que pula a
-senha, porque o que queremos testar é o formulário, não o login. O
-terceiro teste faz o caminho inverso: sai e confere que a página manda
-para o login. Rode só a classe nova:
+(`pytest` já estava importado no topo do arquivo.) No capítulo de Django
+você usou a fixture `tmp_path`, que vem pronta; `usuaria_logada` é a
+primeira fixture **nossa**. Uma função decorada com `@pytest.fixture` roda
+antes de cada teste que a pede pelo nome: esta cria uma usuária e a loga
+com `force_login`, que pula a senha, porque o que queremos testar é o
+formulário, não o login. Ela própria pede três fixtures do pytest-django:
+`db` libera o banco (o mesmo efeito do `@pytest.mark.django_db`, e vale
+para todo teste que usar a fixture), `client` é o `Client` de testes do
+Django e `django_user_model` é o model de usuário, sem precisar importar
+nada. O `client` que a fixture recebe é o **mesmo** objeto que chega ao
+teste, por isso o login feito ali vale aqui. O `assertRedirects` vem de
+`pytest_django.asserts`, que reexporta as verificações especiais do
+`TestCase` do Django como funções soltas. O terceiro teste faz o caminho
+inverso: não pede `usuaria_logada`, logo ninguém está logado, e confere
+que a página manda para o login. Rode só os testes novos, filtrando pelo
+nome com `-k`:
 
 ```bash
-uv run python manage.py test lugares.tests.NovoBairroTests
-# Ran 3 tests in ...
-# OK
+uv run pytest -k bairro
+# ...
+# collected 4 items / 1 deselected / 3 selected
+#
+# lugares/tests.py ...                                                     [100%]
+#
+# ======================= 3 passed, 1 deselected in 0.46s ========================
 ```
 
-Por que só a classe nova? Porque `uv run python manage.py test` sem
-argumentos roda também o `ImportarLugaresTests` do capítulo de Django, e
-ele **quebrou** no capítulo de GeoDjango sem ninguém perceber: o comando
-`importar_lugares` cria `Lugar` sem `localizacao`, e esse campo virou
-obrigatório. O teste falha com `IntegrityError: null value in column
-"localizacao"`. Não é o seu formulário que está errado. O conserto é no
-comando (dê a ele um `Point` padrão, ou acrescente colunas `lon` e `lat`
-ao CSV e monte o `Point` a partir delas); fica como tarefa no exercício 1.
+Por que só os novos? Porque `uv run pytest` sem argumentos roda também o
+teste do capítulo de Django, e ele **quebrou** no capítulo de GeoDjango
+sem ninguém perceber:
+
+```bash
+uv run pytest
+# ...
+# lugares/tests.py F...                                                    [100%]
+# ...
+# FAILED lugares/tests.py::test_importar_lugares_cria_a_partir_do_csv - django....
+# ========================= 1 failed, 3 passed in 0.63s ==========================
+```
+
+Subindo na tela, o pytest mostra o erro inteiro: `IntegrityError: null
+value in column "localizacao"`. O comando `importar_lugares` cria `Lugar`
+sem `localizacao`, e esse campo virou obrigatório. Não é o seu formulário
+que está errado. O conserto é no comando (dê a ele um `Point` padrão, ou
+acrescente colunas `lon` e `lat` ao CSV e monte o `Point` a partir delas);
+fica como tarefa no exercício 1.
 
 O comentário sobre o `SRID=4326;` esconde uma pegadinha real. O mapa do
 widget trabalha internamente no SRID **3857** (a projeção do Google Maps e
@@ -1122,7 +1151,7 @@ veja a requisição a `api/onde/` sair a cada clique.
 | Formulário com mapa                   | `forms.ModelForm` + `widgets = {"area": forms.OSMWidget(attrs={...})}` |
 | Template do formulário                | `{{ form.media }}` no `<head>` + CSS `.dj_map { height: 400px }`       |
 | Página só para quem está logado       | `@login_required` na view + `LOGIN_URL = "/admin/login/"`              |
-| Testar uma view com login             | `self.client.force_login(usuario)` no `setUp`                          |
+| Testar uma view com login             | `client.force_login(usuario)` numa fixture                             |
 | Geometria em texto num teste          | `"SRID=4326;POLYGON((x y, ..., x y))"` (EWKT)                          |
 | Ponto → regiões                       | `Bairro.objects.filter(area__contains=ponto)` (`__covers` inclui a borda) |
 | Região → pontos                       | `Lugar.objects.filter(localizacao__within=bairro.area)`                |
@@ -1270,6 +1299,11 @@ veja a requisição a `api/onde/` sair a cada clique.
 - **Cliente de testes (`post`, `force_login`, `assertRedirects`, CSRF
   desligado)**:
   <https://docs.djangoproject.com/en/stable/topics/testing/tools/>.
+- **Fixtures do pytest** (`@pytest.fixture`, fixtures que pedem fixtures):
+  <https://docs.pytest.org/en/stable/how-to/fixtures.html>; e as do
+  pytest-django (`db`, `client`, `django_user_model`) e o módulo
+  `pytest_django.asserts`:
+  <https://pytest-django.readthedocs.io/en/latest/helpers.html>.
 - **PostGIS**: `ST_Contains` (e por que a borda não conta),
   <https://postgis.net/docs/ST_Contains.html>; `ST_Within`,
   <https://postgis.net/docs/ST_Within.html>; `ST_Covers`,

@@ -855,85 +855,97 @@ de propósito.
 
 ## Testando a API
 
-Os endpoints são views do Django, então o `Client` de testes que você já
-usa funciona sem nada extra. Ele serializa um dicionário como JSON quando
+Os endpoints são views do Django, então a fixture `client` que você já
+usa funciona sem nada extra. Ela serializa um dicionário como JSON quando
 você passa `content_type="application/json"`, e aceita cabeçalhos em
-`headers=`:
+`headers=`. Desta vez o cenário (um lugar, um token, o JSON de um lugar
+novo) vira três fixtures, e cada teste pede só o que usa. Acrescente ao
+fim de `lugares/tests.py`:
 
 ```python
-# lugares/tests.py
-from django.contrib.auth import get_user_model
-from django.contrib.gis.geos import Point
-from django.test import TestCase
-
-from .models import Categoria, Lugar, TokenDeAPI
+from .models import TokenDeAPI
 
 
-class ApiLugaresTests(TestCase):
-    def setUp(self):
-        self.categoria = Categoria.objects.create(nome="Café")
-        self.lugar = Lugar.objects.create(
-            nome="Café Teste",
-            categoria=self.categoria,
-            localizacao=Point(-46.63, -23.55, srid=4326),
-        )
-        usuario = get_user_model().objects.create_user("ana", password="segredo")
-        self.token = TokenDeAPI.objects.create(usuario=usuario, descricao="testes")
-        self.novo_lugar = {
-            "nome": "Padaria Estrela",
-            "categoria": "Café",
-            "longitude": -46.64,
-            "latitude": -23.56,
-        }
+@pytest.fixture
+def lugar(db):
+    cafe = Categoria.objects.create(nome="Café")
+    return Lugar.objects.create(
+        nome="Café Teste",
+        categoria=cafe,
+        localizacao=Point(-46.63, -23.55, srid=4326),
+    )
 
-    def test_lista_lugares(self):
-        resposta = self.client.get("/api/lugares")
-        self.assertEqual(resposta.status_code, 200)
-        self.assertEqual(len(resposta.json()), 1)
-        self.assertEqual(resposta.json()[0]["nome"], "Café Teste")
 
-    def test_detalhe_inexistente_da_404(self):
-        resposta = self.client.get("/api/lugares/999")
-        self.assertEqual(resposta.status_code, 404)
+@pytest.fixture
+def token(db, django_user_model):
+    usuario = django_user_model.objects.create_user("ana", password="segredo")
+    return TokenDeAPI.objects.create(usuario=usuario, descricao="testes")
 
-    def test_criar_sem_token_e_negado(self):
-        resposta = self.client.post(
-            "/api/lugares", self.novo_lugar, content_type="application/json"
-        )
-        self.assertEqual(resposta.status_code, 401)
-        self.assertEqual(Lugar.objects.count(), 1)
 
-    def test_criar_com_token(self):
-        resposta = self.client.post(
-            "/api/lugares",
-            self.novo_lugar,
-            content_type="application/json",
-            headers={"Authorization": f"Bearer {self.token.chave}"},
-        )
-        self.assertEqual(resposta.status_code, 201)
-        self.assertEqual(resposta.json()["categoria"], "Café")
-        self.assertEqual(Lugar.objects.count(), 2)
+@pytest.fixture
+def novo_lugar():
+    return {
+        "nome": "Padaria Estrela",
+        "categoria": "Café",
+        "longitude": -46.64,
+        "latitude": -23.56,
+    }
 
-    def test_token_desativado_e_negado(self):
-        self.token.ativo = False
-        self.token.save()
-        resposta = self.client.post(
-            "/api/lugares",
-            self.novo_lugar,
-            content_type="application/json",
-            headers={"Authorization": f"Bearer {self.token.chave}"},
-        )
-        self.assertEqual(resposta.status_code, 401)
+
+def test_api_lista_lugares(client, lugar):
+    resposta = client.get("/api/lugares")
+    assert resposta.status_code == 200
+    assert len(resposta.json()) == 1
+    assert resposta.json()[0]["nome"] == "Café Teste"
+
+
+def test_api_detalhe_inexistente_da_404(client, db):
+    resposta = client.get("/api/lugares/999")
+    assert resposta.status_code == 404
+
+
+def test_api_criar_sem_token_e_negado(client, lugar, novo_lugar):
+    resposta = client.post("/api/lugares", novo_lugar, content_type="application/json")
+    assert resposta.status_code == 401
+    assert Lugar.objects.count() == 1
+
+
+def test_api_criar_com_token(client, lugar, token, novo_lugar):
+    resposta = client.post(
+        "/api/lugares",
+        novo_lugar,
+        content_type="application/json",
+        headers={"Authorization": f"Bearer {token.chave}"},
+    )
+    assert resposta.status_code == 201
+    assert resposta.json()["categoria"] == "Café"
+    assert Lugar.objects.count() == 2
+
+
+def test_api_token_desativado_e_negado(client, lugar, token, novo_lugar):
+    token.ativo = False
+    token.save()
+    resposta = client.post(
+        "/api/lugares",
+        novo_lugar,
+        content_type="application/json",
+        headers={"Authorization": f"Bearer {token.chave}"},
+    )
+    assert resposta.status_code == 401
 ```
 
+As fixtures `lugar` e `token` pedem `db`, então todo teste que as recebe
+ganha acesso ao banco sem marcar nada; o teste do `404` não precisa de
+nenhuma das duas e pede `db` direto. Repare que `test_api_criar_com_token`
+precisa que a categoria "Café" exista, e ela vem junto com a fixture
+`lugar`: ler a assinatura de um teste já conta o cenário dele.
+
 ```bash
-uv run python manage.py test lugares.tests.ApiLugaresTests
-# Found 5 test(s).
-# .....
-# ----------------------------------------------------------------------
-# Ran 5 tests in 0.935s
+uv run pytest -k api
+# ...
+# lugares/tests.py .....                                                   [100%]
 #
-# OK
+# ======================= 5 passed, 8 deselected in 0.81s ========================
 ```
 
 Repare no que cada teste protege: a listagem, o `404`, e os três caminhos
@@ -972,7 +984,7 @@ caminho inteiro, que é o que o usuário percorre.
 | Proteger rota / API inteira    | `@api.post(..., auth=X())` / `NinjaAPI(auth=X())` e `auth=None` para abrir |
 | Sessão do navegador            | `auth=django_auth`; lista `auth=[X(), django_auth]` tenta em ordem         |
 | Quem está autenticado          | `request.auth` (o que `authenticate` devolveu)                             |
-| Testar                         | `self.client.post(url, dados, content_type="application/json", headers={...})` |
+| Testar                         | `client.post(url, dados, content_type="application/json", headers={...})`      |
 
 ## Exercícios
 

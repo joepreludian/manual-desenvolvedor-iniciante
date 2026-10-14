@@ -12,10 +12,12 @@ stack:
   - "PostGIS"
   - "httpx"
   - "APIs REST"
+  - "Django Ninja"
+  - "OpenAPI"
 author:
   - "Jon Trigueiro"
   - "Claude LLM"
-version: "v1.4.0"
+version: "v1.5.0"
 date: "Outubro de 2026"
 lang: pt-BR
 toc: true

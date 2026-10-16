@@ -4,6 +4,13 @@ Novidades do manual, da versão mais recente para a mais antiga. Depois de
 editar este arquivo, rode `make changelog` para atualizar a tabela da
 homepage (`site/index.html`).
 
+## v1.8.0 — 2026-10-16
+
+- Novo capítulo: **JavaScript: a página ganha vida**: o DOM, eventos, o loop
+  de eventos comparado com o Python, depuração no DevTools e a história do
+  jQuery. O painel ganha filtros instantâneos, busca, "onde estou" e
+  "copiar link".
+
 ## v1.7.0 — 2026-10-15
 
 - Novo capítulo: **HTML e CSS: a página que o navegador desenha**, com um

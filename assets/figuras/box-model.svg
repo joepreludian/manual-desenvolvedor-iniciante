@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="340" viewBox="0 0 560 340" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+<rect width="560" height="340" fill="white"/>
+<rect x="20" y="20" width="520" height="290" fill="#fff3bf" stroke="#e8590c" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="28.0" y="37.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14.3" fill="#e8590c" text-anchor="start" font-weight="bold" >margin</text>
+<text x="532.0" y="37.0" font-family="Menlo, Consolas, monospace" font-size="13.0" fill="#e8590c" text-anchor="end" font-weight="normal" >16px</text>
+<rect x="76" y="60" width="408" height="210" fill="#495057" stroke="#1f2933" stroke-width="1.5" stroke-dasharray="none"/>
+<text x="84.0" y="286.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14.3" fill="#1f2933" text-anchor="start" font-weight="bold" >border</text>
+<text x="476.0" y="286.0" font-family="Menlo, Consolas, monospace" font-size="13.0" fill="#1f2933" text-anchor="end" font-weight="normal" >2px</text>
+<rect x="84" y="68" width="392" height="194" fill="#d3f9d8" stroke="#2f9e44" stroke-width="1.5" stroke-dasharray="none"/>
+<text x="92.0" y="85.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14.3" fill="#2f9e44" text-anchor="start" font-weight="bold" >padding</text>
+<text x="468.0" y="85.0" font-family="Menlo, Consolas, monospace" font-size="13.0" fill="#2f9e44" text-anchor="end" font-weight="normal" >12px</text>
+<rect x="140" y="110" width="280" height="110" fill="#d0ebff" stroke="#1c7ed6" stroke-width="1.5" stroke-dasharray="none"/>
+<text x="148.0" y="127.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14.3" fill="#1c7ed6" text-anchor="start" font-weight="bold" >content</text>
+<text x="412.0" y="127.0" font-family="Menlo, Consolas, monospace" font-size="13.0" fill="#1c7ed6" text-anchor="end" font-weight="normal" >280 x 110</text>
+<text x="280.0" y="160.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="16.9" fill="#1f2933" text-anchor="middle" font-weight="bold" >Lugares abertos</text>
+<text x="280.0" y="182.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="26.0" fill="#1f2933" text-anchor="middle" font-weight="normal" >5</text>
+<text x="20.0" y="334.0" font-family="Menlo, Consolas, monospace" font-size="12.3" fill="#868e96" text-anchor="start" font-weight="normal" >.card { margin: 16px; border: 2px solid; padding: 12px; width: 280px; }</text>
+</svg>

@@ -15,10 +15,13 @@ stack:
   - "APIs REST"
   - "Django Ninja"
   - "OpenAPI"
+  - "HTML"
+  - "CSS"
+  - "Bootstrap"
 author:
   - "Jon Trigueiro"
   - "Claude LLM"
-version: "v1.6.0"
+version: "v1.7.0"
 date: "Outubro de 2026"
 lang: pt-BR
 toc: true

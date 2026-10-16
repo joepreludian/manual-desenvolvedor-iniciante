@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Gera as figuras SVG do capítulo de polígonos.
+"""Gera as figuras SVG dos capítulos de polígonos e de HTML/CSS.
 
 Uso: python3 assets/figuras/gerar.py
-Saída: assets/figuras/dados-capitulo.svg e assets/figuras/anatomia-poligono.svg
+Saída: assets/figuras/dados-capitulo.svg, assets/figuras/anatomia-poligono.svg
+e assets/figuras/box-model.svg
 
 Sem dependências: só a biblioteca padrão. As coordenadas são as mesmas que o
 capítulo usa no shell, projetadas em quilômetros (equirretangular, com a
@@ -21,6 +22,7 @@ AZUL = "#1c7ed6"
 LARANJA = "#e8590c"
 VERDE = "#2f9e44"
 VERMELHO = "#c92a2a"
+MONO = "Menlo, Consolas, monospace"
 ESCALA_FONTE = 1.3   # os SVGs são reduzidos no PDF; compensa o tamanho do texto
 
 # Dados do capítulo (lon, lat)
@@ -40,8 +42,8 @@ def esc(texto):
     return texto.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
-def texto(x, y, s, size=11, fill=TINTA, anchor="start", weight="normal", extra=""):
-    return (f'<text x="{x:.1f}" y="{y:.1f}" font-family="{FONTE}" font-size="{size * ESCALA_FONTE:.1f}" '
+def texto(x, y, s, size=11, fill=TINTA, anchor="start", weight="normal", extra="", fonte=FONTE):
+    return (f'<text x="{x:.1f}" y="{y:.1f}" font-family="{fonte}" font-size="{size * ESCALA_FONTE:.1f}" '
             f'fill="{fill}" text-anchor="{anchor}" font-weight="{weight}" {extra}>{esc(s)}</text>')
 
 
@@ -248,7 +250,42 @@ def figura_anatomia():
     return "\n".join(o)
 
 
+# ---------------------------------------------------------------- figura 3
+def figura_box_model():
+    """O box model do CSS: conteúdo, padding, borda e margem, com os valores
+    da regra usada no capítulo de HTML/CSS."""
+    W, H = 560, 340
+    o = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" font-family="{FONTE}">',
+         f'<rect width="{W}" height="{H}" fill="white"/>']
+
+    # Caixas concêntricas: (x, y, w, h, cor, rótulo, valor)
+    camadas = [
+        (20, 20, 520, 290, "#fff3bf", LARANJA, "margin", "16px"),
+        (76, 60, 408, 210, "#495057", TINTA, "border", "2px"),
+        (84, 68, 392, 194, "#d3f9d8", VERDE, "padding", "12px"),
+        (140, 110, 280, 110, "#d0ebff", AZUL, "content", "280 x 110"),
+    ]
+    for x, y, w, h, fundo, cor, nome, valor in camadas:
+        o.append(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" fill="{fundo}" stroke="{cor}" '
+                 f'stroke-width="1.5" stroke-dasharray="{"6 4" if nome == "margin" else "none"}"/>')
+        # A borda é fina demais para escrever dentro: o rótulo vai logo abaixo dela
+        ty = y + h + 16 if nome == "border" else y + 17
+        o.append(texto(x + 8, ty, nome, 11, cor, weight="bold"))
+        o.append(texto(x + w - 8, ty, valor, 10, cor, anchor="end", fonte=MONO))
+
+    # O conteúdo
+    o.append(texto(280, 160, "Lugares abertos", 13, TINTA, "middle", "bold"))
+    o.append(texto(280, 182, "5", 20, TINTA, "middle"))
+
+    # Legenda: a regra CSS correspondente
+    o.append(texto(20, H - 6, ".card { margin: 16px; border: 2px solid; padding: 12px; width: 280px; }",
+                   9.5, CINZA, fonte=MONO))
+    o.append("</svg>")
+    return "\n".join(o)
+
+
 if __name__ == "__main__":
     (AQUI / "dados-capitulo.svg").write_text(figura_dados() + "\n", encoding="utf-8")
     (AQUI / "anatomia-poligono.svg").write_text(figura_anatomia() + "\n", encoding="utf-8")
+    (AQUI / "box-model.svg").write_text(figura_box_model() + "\n", encoding="utf-8")
     print("figuras geradas em", AQUI)

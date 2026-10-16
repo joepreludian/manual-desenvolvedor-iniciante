@@ -43,6 +43,9 @@
         <li class="rounded border border-accent bg-accent/10 px-3 py-1.5 font-semibold text-accent">APIs REST</li>
         <li class="rounded border border-accent bg-accent/10 px-3 py-1.5 font-semibold text-accent">Django Ninja</li>
         <li class="rounded border border-accent bg-accent/10 px-3 py-1.5 font-semibold text-accent">OpenAPI</li>
+        <li class="rounded border border-accent bg-accent/10 px-3 py-1.5 font-semibold text-accent">HTML</li>
+        <li class="rounded border border-accent bg-accent/10 px-3 py-1.5 font-semibold text-accent">CSS</li>
+        <li class="rounded border border-accent bg-accent/10 px-3 py-1.5 font-semibold text-accent">Bootstrap</li>
       </ul>
     </section>
 
@@ -81,6 +84,52 @@
         mentoria. Ainda falta muita coisa, e o que já está aqui pode mudar. Volte de
         vez em quando: os links acima sempre apontam para a versão mais nova.
       </p>
+    </section>
+
+    <section class="mt-12">
+      <h2 class="text-2xl font-bold">Novidades</h2>
+      <p class="mt-2 text-muted">O que entrou em cada versão, da mais nova para a mais antiga.</p>
+      <div class="mt-5 overflow-x-auto">
+      <!-- changelog:start -->
+      <table class="w-full text-left text-sm">
+        <thead><tr class="text-xs tracking-widest text-muted"><th class="pb-2 pr-4 font-semibold">VERSÃO</th><th class="pb-2 font-semibold">O QUE MUDOU</th></tr></thead>
+        <tbody>
+        <tr class="border-t border-line align-top">
+          <td class="py-3 pr-4 whitespace-nowrap"><span class="font-bold text-accent">v1.7.0</span><span class="block text-xs text-muted">15/10/2026</span></td>
+          <td class="py-3"><ul class="list-disc space-y-1 pl-4 text-muted"><li>Novo capítulo: <strong class="text-ink">HTML e CSS: a página que o navegador desenha</strong>, com um panorama dos frameworks CSS e a página do mapa transformada num painel com Bootstrap.</li></ul></td>
+        </tr>
+        <tr class="border-t border-line align-top">
+          <td class="py-3 pr-4 whitespace-nowrap"><span class="font-bold text-accent">v1.6.0</span><span class="block text-xs text-muted">14/10/2026</span></td>
+          <td class="py-3"><ul class="list-disc space-y-1 pl-4 text-muted"><li>Os testes do livro passam a usar <strong class="text-ink">pytest</strong> com <strong class="text-ink">pytest-django</strong>: o capítulo de Django ganha uma seção sobre eles e os exemplos de testes dos capítulos seguintes foram reescritos.</li></ul></td>
+        </tr>
+        <tr class="border-t border-line align-top">
+          <td class="py-3 pr-4 whitespace-nowrap"><span class="font-bold text-accent">v1.5.0</span><span class="block text-xs text-muted">14/10/2026</span></td>
+          <td class="py-3"><ul class="list-disc space-y-1 pl-4 text-muted"><li>Novo capítulo: <strong class="text-ink">Criando APIs: JSON com Django Ninja</strong> (APIs REST e documentação OpenAPI).</li><li><strong class="text-ink">Correção:</strong> linhas longas sem espaços (URLs, JSON) agora quebram dentro dos blocos de código do PDF em vez de sair da página.</li></ul></td>
+        </tr>
+        <tr class="border-t border-line align-top">
+          <td class="py-3 pr-4 whitespace-nowrap"><span class="font-bold text-accent">v1.4.0</span><span class="block text-xs text-muted">13/10/2026</span></td>
+          <td class="py-3"><ul class="list-disc space-y-1 pl-4 text-muted"><li>Novo capítulo: <strong class="text-ink">Consumindo APIs: um cliente HTTP com httpx</strong>, com APIs públicas brasileiras (ViaCEP, BrasilAPI) e de mapas/clima.</li></ul></td>
+        </tr>
+        <tr class="border-t border-line align-top">
+          <td class="py-3 pr-4 whitespace-nowrap"><span class="font-bold text-accent">v1.3.0</span><span class="block text-xs text-muted">13/10/2026</span></td>
+          <td class="py-3"><ul class="list-disc space-y-1 pl-4 text-muted"><li>Novo capítulo: <strong class="text-ink">Polígonos: regiões e o que cai dentro delas</strong> (consultas espaciais com PostGIS).</li><li><strong class="text-ink">Correção:</strong> os diagramas e figuras não apareciam no PDF; agora aparecem.</li><li><strong class="text-ink">Correção:</strong> tabelas de referência longas quebram entre páginas e a lista de tecnologias da capa não estoura mais a largura.</li></ul></td>
+        </tr>
+        <tr class="border-t border-line align-top">
+          <td class="py-3 pr-4 whitespace-nowrap"><span class="font-bold text-accent">v1.2.0</span><span class="block text-xs text-muted">23/09/2026</span></td>
+          <td class="py-3"><ul class="list-disc space-y-1 pl-4 text-muted"><li>Novo capítulo: <strong class="text-ink">GeoJSON e Leaflet: mapas na web</strong>.</li><li>Lançamento da homepage, com download direto do PDF, EPUB e MOBI.</li></ul></td>
+        </tr>
+        <tr class="border-t border-line align-top">
+          <td class="py-3 pr-4 whitespace-nowrap"><span class="font-bold text-accent">v1.1.0</span><span class="block text-xs text-muted">11/09/2026</span></td>
+          <td class="py-3"><ul class="list-disc space-y-1 pl-4 text-muted"><li>Novo capítulo: <strong class="text-ink">Docker e Docker Compose</strong>.</li><li>Novo capítulo: <strong class="text-ink">Django: a estrutura básica</strong>, incluindo comandos de gerenciamento próprios com um exemplo de importação de CSV.</li><li>Novo capítulo: <strong class="text-ink">GeoDjango: modelos e admin com mapas</strong>.</li></ul></td>
+        </tr>
+        <tr class="border-t border-line align-top">
+          <td class="py-3 pr-4 whitespace-nowrap"><span class="font-bold text-accent">v1.0.0</span><span class="block text-xs text-muted">11/09/2026</span></td>
+          <td class="py-3"><ul class="list-disc space-y-1 pl-4 text-muted"><li>Primeira versão: introdução e o capítulo <strong class="text-ink">Usando o Terminal</strong>.</li><li>Diagramas e código com destaque de sintaxe (tema escuro do VS Code).</li><li>Livro disponível em PDF, EPUB e MOBI.</li></ul></td>
+        </tr>
+        </tbody>
+      </table>
+      <!-- changelog:end -->
+      </div>
     </section>
 
     <footer class="mt-auto pt-16 text-sm text-muted">

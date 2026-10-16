@@ -7,7 +7,7 @@ missão.
 ## Build
 
 ```bash
-make pdf | html | epub | mobi | all | ebooks | serve | clean
+make pdf | html | epub | mobi | all | ebooks | serve | changelog | clean
 ```
 
 - pandoc + typst (`brew install pandoc typst`); MOBI precisa do Calibre.
@@ -17,6 +17,10 @@ make pdf | html | epub | mobi | all | ebooks | serve | clean
   (a página N do Typst é a N-1 impressa no rodapé; para achar o intervalo de
   um capítulo, `uv run --with pypdf python` e procure o título no texto).
 - `make all` gera só PDF e HTML; `make ebooks` gera EPUB/MOBI.
+- Se um diagrama mermaid sair no PDF como bloco de código, o mermaid-cli não
+  achou o navegador: `npx -y puppeteer browsers install chrome-headless-shell`
+  (a versão que ele pede aparece no erro), depois `touch src/NN-x.md` e
+  `make pdf` para o `.typ` ser gerado de novo.
 - CI roda só em tags `vX.Y.Z` e anexa PDF/EPUB/MOBI à release.
 
 ## Conteúdo
@@ -48,7 +52,9 @@ A introdução não conta na numeração do PDF: o "capítulo N" é `src/(N+1)-n
 1. Criar `src/NN-nome.md`.
 2. Em `metadata.yaml`: acrescentar a tecnologia em `stack` e subir `version`.
    Acrescentar a mesma tecnologia na lista de `site/index.html`.
-3. `make all` e conferir o PDF.
+3. Registrar a versão no topo de `CHANGELOG.md` (correções com
+   `**Correção:**`) e rodar `make changelog` para atualizar a tabela da homepage.
+4. `make all` e conferir o PDF.
 
 ## Homepage
 

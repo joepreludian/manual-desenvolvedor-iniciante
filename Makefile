@@ -8,6 +8,7 @@
 #   make all    -> pdf + html
 #   make ebooks -> epub + mobi
 #   make serve  -> abre um servidor local para ler o HTML
+#   make changelog -> atualiza a tabela de novidades de site/index.html
 #   make clean  -> apaga build/
 
 SHELL    := /bin/bash
@@ -29,7 +30,7 @@ COMMON_FLAGS := --from markdown+smart --metadata-file=$(META) --toc \
                 --syntax-highlighting=assets/vscode-dark.theme --resource-path=.:src \
                 --lua-filter=filters/mermaid.lua --lua-filter=filters/figures.lua
 
-.PHONY: all ebooks pdf html epub mobi cover serve clean check-tools
+.PHONY: all ebooks pdf html epub mobi cover serve changelog clean check-tools
 
 all: pdf html
 
@@ -94,6 +95,9 @@ $(OUT_MOBI): $(OUT_EPUB)
 serve: html
 	@echo "Abra http://localhost:8000/manual.html"
 	cd $(BUILD) && python3 -m http.server 8000
+
+changelog:
+	python3 scripts/changelog.py CHANGELOG.md site/index.html
 
 check-tools:
 	@command -v $(PANDOC) >/dev/null || { echo "pandoc não encontrado: brew install pandoc"; exit 1; }
